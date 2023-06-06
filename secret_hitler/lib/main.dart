@@ -49,6 +49,25 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+  int _numPlayers = 5;
+  // List<String> name_players=[];
+
+  void _incrementPlayers() {
+    setState(() {
+      if (_numPlayers < 10) {
+        _numPlayers++;
+      }
+
+    });
+  }
+
+  void _decrementPlayers() {
+    setState(() {
+      if (_numPlayers > 5) {
+        _numPlayers--;
+      }
+    });
+  }
 
   void _incrementCounter() {
     setState(() {
@@ -63,6 +82,39 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+
+    List<TextEditingController> playerNameController = [];
+    for (int i = 0; i < _numPlayers; i++) {
+      playerNameController.add(
+          new TextEditingController()
+      );
+    }
+
+
+    List<Widget> playerWidgets = [];
+    for (int i = 0; i < _numPlayers; i++) {
+      playerWidgets.add(
+          Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children:[
+                Text('Player ${i + 1} name :'),
+                SizedBox(
+                  width: 200.0,
+                  height: 50.0,
+
+                    child:TextField(
+                  controller: playerNameController[i],
+                      decoration: InputDecoration(
+                        hintText: 'Enter some text',
+                        border: OutlineInputBorder(),
+                      ),
+                ),
+                ),
+              ]
+          )
+      );
+      playerWidgets.add(SizedBox(height: 16.0));
+    }
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
     //
@@ -75,7 +127,8 @@ class _MyHomePageState extends State<MyHomePage> {
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
-      body: Center(
+      body: SingleChildScrollView(
+      child:Center(
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
         child: Column(
@@ -93,18 +146,51 @@ class _MyHomePageState extends State<MyHomePage> {
           // center the children vertically; the main axis here is the vertical
           // axis because Columns are vertical (the cross axis would be
           // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
+            SizedBox(height: 16.0),
             const Text(
-              'You have pushed the button this many times:',
+              'Number of Players:',
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+            // Text(
+            //   '$_counter',
+            //   style: Theme.of(context).textTheme.headlineMedium,
+            // ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ClipOval(
+                  child: Material(
+                    color: Colors.blue,
+                    child: IconButton(
+                      icon: Icon(Icons.remove),
+                      onPressed: _decrementPlayers,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                Container(
+                    padding: const EdgeInsets.all(16.0),
+
+                    child:Text('$_numPlayers', style: TextStyle(fontSize: 50),)
+                ),
+                ClipOval(
+                  child: Material(
+                    color: Colors.blue,
+                    child: IconButton(
+                      icon: Icon(Icons.add),
+                      onPressed: _incrementPlayers,
+                      color: Colors.white,
+                    ),
+                  ),
+                )
+
+
+              ],
             ),
-          ],
+          ]+playerWidgets,
         ),
-      ),
+      ),),
       floatingActionButton: FloatingActionButton(
         onPressed: _incrementCounter,
         tooltip: 'Increment',
