@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:secret_hitler/rollassigning.dart';
 
 void main() {
   runApp(const MyApp());
@@ -22,9 +23,9 @@ class MyApp extends StatelessWidget {
         // or simply save your changes to "hot reload" in a Flutter IDE).
         // Notice that the counter didn't reset back to zero; the application
         // is not restarted.
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.orange,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'Secret Hitler'),
     );
   }
 }
@@ -50,7 +51,8 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
   int _numPlayers = 5;
-  // List<String> name_players=[];
+  List<TextEditingController> playerNameController = [];
+  List<Widget> playerWidgets = [];
 
   void _incrementPlayers() {
     setState(() {
@@ -69,29 +71,62 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  void _incrementCounter() {
+
+  void showMessageDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Message'),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _setPlayers() {
+    List<String> playersName = [];
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+      for (int i = 0; i < _numPlayers; i++) {
+        if (playerNameController[i].text.length != 0) {
+          playersName.add(
+              playerNameController[i].text
+          );
+        } else {
+          showMessageDialog(context, 'You must fill player ${i+1} name');
+          break;
+        }
+
+      }
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => RollAssigning(data: playersName)),
+      );
+
     });
   }
 
+  void _setUp() {}
+
+
   @override
   Widget build(BuildContext context) {
-
-    List<TextEditingController> playerNameController = [];
+    playerNameController = [];
+    playerWidgets = [];
     for (int i = 0; i < _numPlayers; i++) {
-      playerNameController.add(
-          new TextEditingController()
-      );
+      playerNameController.add(new TextEditingController());
     }
 
 
-    List<Widget> playerWidgets = [];
+
     for (int i = 0; i < _numPlayers; i++) {
       playerWidgets.add(
           Row(
@@ -192,9 +227,9 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
+        onPressed: _setPlayers,
         tooltip: 'Increment',
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.arrow_forward_sharp),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
