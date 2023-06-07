@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:secret_hitler/game.dart';
 import 'dart:convert';
 class RollAssigning extends StatefulWidget {
   final List<String> data;
@@ -32,7 +33,7 @@ class _RollAssigning extends State<RollAssigning> {
     }
     roles.add('Hitler');
     roles=roles..shuffle();
-    print(roles);
+    // print(roles);
     setState(() { });
   }
 
@@ -80,8 +81,23 @@ class _RollAssigning extends State<RollAssigning> {
   }
 
 
+  void _start_game() {
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => Game(name: widget.data,roles:roles)),
+      );
+
+  }
+
+
   @override
   Widget build(BuildContext context) {
+    print(seen);
+    print(roles);
+    bool every_one_know_his_role=false;
+    every_one_know_his_role=seen.every((value)=>value==true);
+    every_one_know_his_role=true;
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
     return Scaffold(
@@ -112,7 +128,7 @@ class _RollAssigning extends State<RollAssigning> {
               showMessageDialog(context,entry.key, entry.value,roles[entry.key],extend);
             },
             child:Card(
-              color:seen[entry.key]?Colors.white:Colors.grey[300],
+              color:seen[entry.key]?Colors.grey[300]:Colors.white,
               elevation: 50,
               child:SizedBox(
                 width: width*0.9,
@@ -128,6 +144,18 @@ class _RollAssigning extends State<RollAssigning> {
             )
         ).toList(),
         ),
+      ),
+      floatingActionButton:every_one_know_his_role?
+      FloatingActionButton(
+        onPressed:_start_game ,
+        tooltip: 'Game start',
+        child: const Icon(Icons.arrow_forward_sharp),
+      )
+          :
+      FloatingActionButton(
+        onPressed: initState,
+        tooltip: 'restart',
+        child: const Icon(Icons.restart_alt),
       ),
     );
   }
