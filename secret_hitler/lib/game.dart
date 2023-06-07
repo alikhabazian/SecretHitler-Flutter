@@ -16,6 +16,16 @@ class _Game extends State<Game> {
   List<String> dec=[];
   String chancellor='';
   bool first_selected=false;
+  String state='base';// elected
+  Map<int,dynamic> board_fash={
+    5:['blank','blank','top-three','kill','kill_veto','fash'],
+    6:['blank','blank','top-three','kill','kill_veto','fash'],
+    7:['blank','Search','next-persident','kill','kill_veto','fash'],
+    8:['blank','Search','next-persident','kill','kill_veto','fash'],
+    9:['Search','Search','next-persident','kill','kill_veto','fash'],
+    10:['Search','Search','next-persident','kill','kill_veto','fash'],
+  };
+  List<String> board_lib=['blank','blank','blank','blank','blank','lib'];
 
 
   @override
@@ -23,14 +33,68 @@ class _Game extends State<Game> {
     number_players = widget.name.length;
     dec=[];
     for (int i = 0; i < 6; i++) {
-      dec.add('Lib');
+      dec.add('lib');
     }
     for (int i = 0; i < 11; i++) {
-      dec.add('Fas');
+      dec.add('fash');
     }
     dec=dec..shuffle();
     setState(() {});
   }
+
+
+  void showMessageDialog(BuildContext context,String name) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Message'),
+          content: Text('Are you sure you select ${name} ad chancellor'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Yes'),
+              onPressed: () {
+
+                Navigator.of(context).pop();
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text('Message'),
+                        content: Text('is the Government got elected?'),
+                        actions: <Widget>[
+                          TextButton(
+                            child: Text('Yes'),
+                            onPressed: () {
+                              state='elected';
+                              Navigator.of(context).pop();
+                              setState(() { });
+
+                            },
+                          ),
+                          TextButton(
+                            child: Text('No'),
+                            onPressed: () {
+
+                              Navigator.of(context).pop();
+                              setState(() { });
+
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                    barrierDismissible:false
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
 
 
   @override
@@ -52,38 +116,35 @@ class _Game extends State<Game> {
 
 
     List<TableCell> fac_table = [];
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 6; i++) {
+
       fac_table.add(new TableCell(
         verticalAlignment: TableCellVerticalAlignment.top,
         child: Container(
-          child:Image(image: AssetImage('assets/Search.png')),
+          child:board_fash[number_players][i]=='blank'?null:Image(image: AssetImage('assets/'+board_fash[number_players][i]+'.png')),
           height: 120,
           width: 60,
           color: Colors.red,
         ),
       ));
     }
-    for (int i = 0; i < 3; i++) {
-      fac_table.add(new TableCell(
-        verticalAlignment: TableCellVerticalAlignment.top,
-        child: Container(
-          height: 120,
-          width: 60,
-          color: Colors.red[900],
-        ),
-      ));
-    }
-
     List<TableCell> lib_table= [];
     for (int i = 0; i < 6; i++) {
       lib_table.add(new TableCell(
         verticalAlignment: TableCellVerticalAlignment.top,
+
         child: Container(
+          child:board_lib[i]=='blank'?null:Image(image: AssetImage('assets/'+board_lib[i]+'.png')),
+
           height: 120,
           width: 60,
           color: Colors.blue[400],
         ),
       ));
+    }
+
+    if (state=='elected'){
+
     }
 
     return Scaffold(
@@ -132,7 +193,8 @@ class _Game extends State<Game> {
                       color: Colors.blue,
                     ),
                   ),
-                ),
+                ),]+
+                  (state!='base'?<Widget>[]:<Widget>[
                 Padding(
                     padding: EdgeInsets.all(8.0),
                     child:Text(
@@ -173,12 +235,45 @@ class _Game extends State<Game> {
                           color:Colors.blue,
                             child:Text('Selected!',style:TextStyle(color:Colors.white))
                         ),
-                        onPressed: () { },
+                        onPressed: () {
+                          showMessageDialog(context,chancellor);
+                        },
                     )
                   ]
                 )
 
-              ],
+              ])+
+    (state!='elected'?<Widget>[]:<Widget>[
+      Padding(
+        padding: EdgeInsets.all(8.0),
+        child:Text(
+        '${widget.name[turn]},mr president, pick a card to get discarded',
+        style: TextStyle(fontSize: 15),
+        textAlign: TextAlign.center,
+        )
+      ),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children:<Widget>[]+dec.sublist(0, 3).asMap().entries.map((entry)=>
+            Padding(
+                padding: EdgeInsets.all(8.0),
+                child: InkWell(
+                  // highlightColor:Colors.black,
+                  //   hoverColor:Colors.yellow,
+                    onTap: () {print('hi');},
+                  child:Container(
+                    child:Image(image: AssetImage('assets/'+entry.value+'.png')),
+                    color :entry.value=='lib'?Colors.blue[400]:Colors.red,
+                    height: 150,
+                    width: 80,
+                  ),
+
+                )
+            )
+        ).toList(),
+        )
+      ]
+                  ),
           )
         )
       );
