@@ -110,6 +110,7 @@ class _Game extends State<Game> {
                           TextButton(
                             child: Text('Yes'),
                             onPressed: () {
+                              first_selected=false;
                               state='elected';
                               president_selected=-1;
                               if(widget.roles[widget.name.indexOf(name)]=='Hitler'&& hitler_state){
