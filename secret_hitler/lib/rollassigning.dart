@@ -104,7 +104,10 @@ class _RollAssigning extends State<RollAssigning> {
       appBar: AppBar(
         title: Text('Roll Assigning'),
       ),
-      body: Center(
+      body:
+      SingleChildScrollView(
+          child:
+      Center(
         child:Column(
         // child: Text(widget.data.toString()),
         children:<Widget>[
@@ -144,7 +147,7 @@ class _RollAssigning extends State<RollAssigning> {
             )
         ).toList(),
         ),
-      ),
+      )),
       floatingActionButton:every_one_know_his_role?
       FloatingActionButton(
         onPressed:_start_game ,

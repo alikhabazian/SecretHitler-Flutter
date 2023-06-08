@@ -18,6 +18,8 @@ class _Game extends State<Game> {
   List<String> dis_dec=[];
   String chancellor='';
   String will_killed='';
+  String will_Search='';
+  String will_president='';
   bool first_selected=false;
   String state='base';// elected
   Map<int,dynamic> board_fash={
@@ -34,6 +36,11 @@ class _Game extends State<Game> {
   List<String> fash_board=[];
   List<String> lib_board=[];
   bool top_tree_seen=false;
+  bool is_hitler_alive=true;
+  bool hitler_state=false;
+  bool hitler_chancellor=false;
+  bool special = false;
+  int old_round=-1;
 
 
   @override
@@ -51,6 +58,33 @@ class _Game extends State<Game> {
     setState(() {});
   }
 
+  void showRoleDialog(BuildContext context,String name) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        String rool='';
+        if (widget.roles[widget.name.indexOf(name)]=='Liberal'){
+          rool='Liberal';
+        }
+        else{
+          rool='Fascist';
+        }
+        return AlertDialog(
+          title: Text('Message'),
+          content: Text('You searched ${name} and it is ${rool}'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   void showMessageDialog(BuildContext context,String name) {
     showDialog(
@@ -77,6 +111,9 @@ class _Game extends State<Game> {
                             onPressed: () {
                               state='elected';
                               president_selected=-1;
+                              if(widget.roles[widget.name.indexOf(name)]=='Hitler'&& hitler_state){
+                                hitler_chancellor=true;
+                              }
                               Navigator.of(context).pop();
                               setState(() { });
 
@@ -112,25 +149,38 @@ class _Game extends State<Game> {
     print(widget.name);
     print(first_starter);
     print(round);
+    print(old_round);
     print(number_players);
 
-    bool hitler_state=false;
     if(fash_board.length>2){
       hitler_state=true;
     }
 
     int turn=(first_starter+round)%number_players;
+    if(special &&(round-old_round!=1)){
+      print('will_president : ${will_president}');
+      turn=widget.name.indexOf(will_president);
+    }
     print(turn);
     print('dec : ${dec}');
     print('dis_dec : ${dis_dec}');
     List<String> chancellor_list=[...widget.name];
+    List<String> president_list=[...widget.name];
     chancellor_list.remove(chancellor_list[turn]);
+    if(state=='next-persident') {
+      president_list.remove(widget.name[turn]);
+      president_list.remove(widget.name[widget.name.indexOf(chancellor)]);
+    }
     if(!first_selected) {
       chancellor = widget.name[(turn+1) % number_players];
       will_killed= widget.name[(turn+1) % number_players];
+      will_Search= widget.name[(turn+1) % number_players];
+      will_president=president_list[(turn+1) % number_players];
     }
     print("chancellor : ${chancellor}");
+    print('chancellor_selected : ${chancellor_selected}');
     print("chancellor list : ${chancellor_list}");
+    print("president list : ${president_list}");
 
     print('fash_board : ${fash_board}');
 
@@ -168,19 +218,34 @@ class _Game extends State<Game> {
 
     print("president_selected : ${president_selected}");
 
+    if(lib_board.length==6 || !is_hitler_alive){
+      state='lib win';
+
+    }
+    if(fash_board.length==6 || hitler_chancellor ){
+      state='fash win';
+
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Game'),
       ),
-      body:Center(
+      body:
+      Center(
           child:Column(
             mainAxisAlignment: MainAxisAlignment.center,
               children:<Widget>[
 
                 SizedBox(height: 16.0),
                 Text(
-                  hitler_state?'we are in a dangerous state if hitler became a chancellor fashists will win the game ':'',
+                  (hitler_state&& (state!='lib win' && state!='fash win'))?'we are in a dangerous state if hitler became a chancellor fashists will win the game ':'',
                   style: TextStyle(fontSize: 15),
+                  textAlign: TextAlign.center,
+                ),
+                Text(
+                  (state!='lib win' && state!='fash win')?'':'${state}s the game',
+                  style: TextStyle(fontSize: 30),
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(height: 16.0),
@@ -268,258 +333,378 @@ class _Game extends State<Game> {
                   ]
                 )
 
-              ])+
-            (state!='elected'?<Widget>[]:<Widget>[
-      Padding(
-        padding: EdgeInsets.all(8.0),
-        child:Text(
-        '${widget.name[turn]},mr president, pick a card to get discarded',
-        style: TextStyle(fontSize: 15),
-        textAlign: TextAlign.center,
-        )
-      ),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children:<Widget>[]+dec.sublist(0, 3).asMap().entries.map((entry)=>
+              ]
+                  )+
+                  (state!='elected'?<Widget>[]:<Widget>[
             Padding(
-                padding: EdgeInsets.all(8.0),
-                child: InkWell(
-                  // highlightColor:Colors.black,
-                  //   hoverColor:Colors.yellow,
-                    onTap: () {
-                      print("entry.key: ${entry.key}");
-                      president_selected=entry.key;
-                      setState(() {});
-                      },
-                  child:Container(
-                    decoration: BoxDecoration(
-                        color :entry.value=='lib'?Colors.blue[400]:Colors.red,
-                        border: president_selected!=entry.key?null:Border.all(width: 5.0,color: Colors.blueAccent)
-                    ),
-
-                    child:Image(image: AssetImage('assets/'+entry.value+'.png')),
-
-                    height: 155,
-                    width: 85,
-                  ),
-
-                )
-            )
-        ).toList(),
-        ),
-      TextButton(
-        child: Container(
-            height: 40,
-            width: 80,
-            color:Colors.blue,
-            child:Center(
-                child:Text('Selected!',style:TextStyle(color:Colors.white), textAlign: TextAlign.center,)
-            )
-        ),
-        onPressed: () {
-          state='president_discarded';
-          chancellor_selected=-1;
-          dis_dec.add(dec.removeAt(president_selected));
-          setState(() {});
-        },
-      )
-      ]
-            )+
-            (state!='president_discarded'?<Widget>[]:<Widget>[
-              Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child:Text(
-                    '${widget.name[turn]},mr chancellor, pick a card to select policy',
-                    style: TextStyle(fontSize: 15),
-                    textAlign: TextAlign.center,
-                  )
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children:<Widget>[]+dec.sublist(0, 2).asMap().entries.map((entry)=>
-                    Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: InkWell(
-
+              padding: EdgeInsets.all(8.0),
+              child:Text(
+              '${widget.name[turn]},mr president, pick a card to get discarded',
+              style: TextStyle(fontSize: 15),
+              textAlign: TextAlign.center,
+              )
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children:<Widget>[]+dec.sublist(0, 3).asMap().entries.map((entry)=>
+                  Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: InkWell(
+                        // highlightColor:Colors.black,
+                        //   hoverColor:Colors.yellow,
                           onTap: () {
                             print("entry.key: ${entry.key}");
-                            chancellor_selected=entry.key;
+                            president_selected=entry.key;
                             setState(() {});
-                          },
-                          child:Container(
-                            decoration: BoxDecoration(
-                                color :entry.value=='lib'?Colors.blue[400]:Colors.red,
-                                border: chancellor_selected!=entry.key?null:Border.all(width: 5.0,color: Colors.blueAccent)
-                            ),
-
-                            child:Image(image: AssetImage('assets/'+entry.value+'.png')),
-
-                            height: 155,
-                            width: 85,
+                            },
+                        child:Container(
+                          decoration: BoxDecoration(
+                              color :entry.value=='lib'?Colors.blue[400]:Colors.red,
+                              border: president_selected!=entry.key?null:Border.all(width: 5.0,color: Colors.blueAccent)
                           ),
 
-                        )
-                    )
-                ).toList(),
+                          child:Image(image: AssetImage('assets/'+entry.value+'.png')),
+
+                          height: 155,
+                          width: 85,
+                        ),
+
+                      )
+                  )
+              ).toList(),
               ),
-              TextButton(
-                child: Container(
-                    height: 40,
-                    width: 80,
-                    color:Colors.blue,
-                    child:Center(
-                        child:Text('Selected!',style:TextStyle(color:Colors.white), textAlign: TextAlign.center,)
-                    )
-                ),
-                onPressed: () {
-
-                  if(dec[chancellor_selected]=='fash'){
-                    fash_board.add('Done');
-                    if(board_fash[number_players_at_start][fash_board.length-1]!='blank'){
-                      print('it is ${board_fash[number_players_at_start][fash_board.length-1]} state');
-                      state=board_fash[number_players_at_start][fash_board.length-1];
-                    }
-                    else {
-                      state = 'base';
-                      round=round+1;
-                    }
-                  }
-                  else if(dec[chancellor_selected]=='lib'){
-                    lib_board.add('Done');
-                    state = 'base';
-                    round=round+1;
-                  }
-
-                  dec.removeAt(chancellor_selected);
-                  dis_dec.add(dec.removeAt(0));
-                  if(dec.length==2){
-                    dec=dec+dis_dec;
-                    dec=dec..shuffle();
-                    dis_dec=[];
-                  }
-                  setState(() {});
-                },
-              )
-            ]
-            )+
-            (state!='top-three'?<Widget>[]:<Widget>[
-              Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child:Text(
-                    '${widget.name[turn]},mr president, If you are ready you can see top three dec',
-                    style: TextStyle(fontSize: 15),
-                    textAlign: TextAlign.center,
+            TextButton(
+              child: Container(
+                  height: 40,
+                  width: 80,
+                  color:Colors.blue,
+                  child:Center(
+                      child:Text('Selected!',style:TextStyle(color:Colors.white), textAlign: TextAlign.center,)
                   )
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children:<Widget>[]+dec.sublist(0, 3).asMap().entries.map((entry)=>
-                    Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: !top_tree_seen?null:Container(
-                            decoration: BoxDecoration(
-                                color :entry.value=='lib'?Colors.blue[400]:Colors.red,
-                                // border: chancellor_selected!=entry.key?null:Border.all(width: 5.0,color: Colors.blueAccent)
-                            ),
-
-                            child:Image(image: AssetImage('assets/'+entry.value+'.png')),
-
-                            height: 155,
-                            width: 85,
-                          ),
-
-
-                    )
-                ).toList(),
-              ),
-              TextButton(
-                child: Container(
-                    height: 40,
-                    width: 80,
-                    color:Colors.blue,
-                    child:Center(
-                        child:Text(top_tree_seen?'Ok':'Show cards',style:TextStyle(color:Colors.white), textAlign: TextAlign.center,)
-                    )
-                ),
-                onPressed: () {
-                  if(!top_tree_seen) {
-                    top_tree_seen = true;
-                  }
-                  else{
-                    top_tree_seen = false;
-                    state='base';
-                    round=round+1;
-                  }
-                  setState(() {});
-                },
-              )
+              onPressed: () {
+                state='president_discarded';
+                chancellor_selected=-1;
+                dis_dec.add(dec.removeAt(president_selected));
+                setState(() {});
+              },
+            )
             ]
-            )+
-            ((state!='kill'&&state!='kill_veto')?<Widget>[]:<Widget>[
-              Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child:Text(
-                    '${widget.name[turn]},mr president, If you are ready you can kill a person if you kill the hitler liberals will win ',
-                    style: TextStyle(fontSize: 15),
-                    textAlign: TextAlign.center,
-                  )
-              ),
-              Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children:[
+                  )+
+                  (state!='president_discarded'?<Widget>[]:<Widget>[
                     Padding(
                         padding: EdgeInsets.all(8.0),
                         child:Text(
-                            'who will killed:',
-                            style: TextStyle(fontSize: 30)
-                        )),
-                    DropdownButton<String>(
-                      value: will_killed,
+                          '${chancellor},mr chancellor, pick a card to select policy',
+                          style: TextStyle(fontSize: 15),
+                          textAlign: TextAlign.center,
+                        )
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children:<Widget>[]+dec.sublist(0, 2).asMap().entries.map((entry)=>
+                          Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: InkWell(
 
-                      onChanged: (String? value) {
-                        first_selected=true;
-                        print('$value');
-                        // This is called when the user selects an item.
-                        setState(() {
-                          will_killed = value!;
-                        });
-                      },
-                      items:chancellor_list.map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
+                                onTap: () {
+                                  print("entry.key: ${entry.key}");
+                                  chancellor_selected=entry.key;
+                                  setState(() {});
+                                },
+                                child:Container(
+                                  decoration: BoxDecoration(
+                                      color :entry.value=='lib'?Colors.blue[400]:Colors.red,
+                                      border: chancellor_selected!=entry.key?null:Border.all(width: 5.0,color: Colors.blueAccent)
+                                  ),
+
+                                  child:Image(image: AssetImage('assets/'+entry.value+'.png')),
+
+                                  height: 155,
+                                  width: 85,
+                                ),
+
+                              )
+                          )
+                      ).toList(),
                     ),
                     TextButton(
                       child: Container(
+                          height: 40,
+                          width: 80,
                           color:Colors.blue,
-                          child:Text('Kill!',style:TextStyle(color:Colors.white))
+                          child:Center(
+                              child:Text('Selected!',style:TextStyle(color:Colors.white), textAlign: TextAlign.center,)
+                          )
                       ),
                       onPressed: () {
-                        if(first_starter+round/number_players>=1){
-                          first_starter=((first_starter+round)%number_players)-round;
 
+                        if(dec[chancellor_selected]=='fash'){
+                          fash_board.add('Done');
+                          if(board_fash[number_players_at_start][fash_board.length-1]!='blank'){
+                            print('it is ${board_fash[number_players_at_start][fash_board.length-1]} state');
+                            state=board_fash[number_players_at_start][fash_board.length-1];
+                          }
+                          else {
+                            state = 'base';
+                            round=round+1;
+                          }
                         }
-                        var index=widget.name.indexOf(will_killed);
-                        widget.name.removeAt(index);
-                        widget.roles.removeAt(index);
-                        number_players = widget.name.length;
-                        first_selected=false;
-                        state='base';
+                        else if(dec[chancellor_selected]=='lib'){
+                          lib_board.add('Done');
+                          state = 'base';
+                          round=round+1;
+                        }
 
-                        round=round+1;
-
+                        dec.removeAt(chancellor_selected);
+                        dis_dec.add(dec.removeAt(0));
+                        if(dec.length==2){
+                          dec=dec+dis_dec;
+                          dec=dec..shuffle();
+                          dis_dec=[];
+                        }
                         setState(() {});
                       },
                     )
                   ]
-              )
-            ]
-            )
+                  )+
+                  (state!='top-three'?<Widget>[]:<Widget>[
+                    Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child:Text(
+                          '${widget.name[turn]},mr president, If you are ready you can see top three dec',
+                          style: TextStyle(fontSize: 15),
+                          textAlign: TextAlign.center,
+                        )
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children:<Widget>[]+dec.sublist(0, 3).asMap().entries.map((entry)=>
+                          Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: !top_tree_seen?null:Container(
+                                  decoration: BoxDecoration(
+                                      color :entry.value=='lib'?Colors.blue[400]:Colors.red,
+                                      // border: chancellor_selected!=entry.key?null:Border.all(width: 5.0,color: Colors.blueAccent)
+                                  ),
+
+                                  child:Image(image: AssetImage('assets/'+entry.value+'.png')),
+
+                                  height: 155,
+                                  width: 85,
+                                ),
+
+
+                          )
+                      ).toList(),
+                    ),
+                    TextButton(
+                      child: Container(
+                          height: 40,
+                          width: 80,
+                          color:Colors.blue,
+                          child:Center(
+                              child:Text(top_tree_seen?'Ok':'Show cards',style:TextStyle(color:Colors.white), textAlign: TextAlign.center,)
+                          )
+                      ),
+                      onPressed: () {
+                        if(!top_tree_seen) {
+                          top_tree_seen = true;
+                        }
+                        else{
+                          top_tree_seen = false;
+                          state='base';
+                          round=round+1;
+                        }
+                        setState(() {});
+                      },
+                    )
+                  ]
+                  )+
+                  ((state!='kill'&&state!='kill_veto')?<Widget>[]:<Widget>[
+                    Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child:Text(
+                          '${widget.name[turn]},mr president, If you are ready you can kill a person if you kill the hitler liberals will win ',
+                          style: TextStyle(fontSize: 15),
+                          textAlign: TextAlign.center,
+                        )
+                    ),
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children:[
+                          Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child:Text(
+                                  'who will killed:',
+                                  style: TextStyle(fontSize: 30)
+                              )),
+                          DropdownButton<String>(
+                            value: will_killed,
+
+                            onChanged: (String? value) {
+                              first_selected=true;
+                              print('$value');
+                              // This is called when the user selects an item.
+                              setState(() {
+                                will_killed = value!;
+                              });
+                            },
+                            items:chancellor_list.map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                          ),
+                          TextButton(
+                            child: Container(
+                                color:Colors.blue,
+                                child:Text('Kill!',style:TextStyle(color:Colors.white))
+                            ),
+                            onPressed: () {
+                              if(first_starter+round/number_players>=1){
+                                first_starter=((first_starter+round)%number_players)-round;
+
+                              }
+                              var index=widget.name.indexOf(will_killed);
+                              if(widget.roles[index]=='Hitler'){
+                                is_hitler_alive=false;
+                              }
+                              widget.name.removeAt(index);
+                              widget.roles.removeAt(index);
+                              number_players = widget.name.length;
+                              first_selected=false;
+                              state='base';
+
+                              round=round+1;
+
+
+                              setState(() {});
+                            },
+                          )
+                        ]
+                    )
+                  ]
+                  )+
+                  (state!='Search'?<Widget>[]:<Widget>[
+                    Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child:Text(
+                          '${widget.name[turn]},mr president, You can search role of a person that know it is fashist of liberal ',
+                          style: TextStyle(fontSize: 15),
+                          textAlign: TextAlign.center,
+                        )
+                    ),
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children:[
+                          Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child:Text(
+                                  'who you will the side:',
+                                  style: TextStyle(fontSize: 30)
+                              )),
+                          DropdownButton<String>(
+                            value: will_Search,
+
+                            onChanged: (String? value) {
+                              first_selected=true;
+                              print('$value');
+                              // This is called when the user selects an item.
+                              setState(() {
+                                will_Search = value!;
+                              });
+                            },
+                            items:chancellor_list.map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                          ),
+                          TextButton(
+                            child: Container(
+                                color:Colors.blue,
+                                child:Text('Search!',style:TextStyle(color:Colors.white))
+                            ),
+                            onPressed: () {
+                              showRoleDialog(context,will_Search);
+                              state='base';
+
+                              round=round+1;
+
+                              first_selected=false;
+                              setState(() {});
+                            },
+                          )
+                        ]
+                    )
+                  ]
+                  )+
+                  (state!='next-persident'?<Widget>[]:<Widget>[
+                    Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child:Text(
+                          '${widget.name[turn]},mr president, You choose next president!',
+                          style: TextStyle(fontSize: 15),
+                          textAlign: TextAlign.center,
+                        )
+                    ),
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children:[
+                          Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child:Text(
+                                  'It will be next president:',
+                                  style: TextStyle(fontSize: 20)
+                              )),
+                          DropdownButton<String>(
+                            value: will_president,
+
+                            onChanged: (String? value) {
+                              first_selected=true;
+                              print('$value');
+                              // This is called when the user selects an item.
+                              setState(() {
+                                will_president = value!;
+                              });
+                            },
+                            items:president_list.map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                          ),
+                          TextButton(
+                            child: Container(
+                                color:Colors.blue,
+                                child:Text('Go!',style:TextStyle(color:Colors.white))
+                            ),
+                            onPressed: () {
+                              // showRoleDialog(context,will_Search);
+                              special=true;
+                              state='base';
+                              //
+
+                              round=round+1;
+                              old_round=round;
+                              //
+                              first_starter=first_starter-1;
+                              first_selected=false;
+                              setState(() {});
+                            },
+                          )
+                        ]
+                    )
+                  ]
+                  )
             ,
           )
         )
+    
       );
 
 
