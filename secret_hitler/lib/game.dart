@@ -22,6 +22,7 @@ class _Game extends State<Game> {
   String will_president='';
   bool first_selected=false;
   String state='base';// elected
+  int number_rejected=0;
   Map<int,dynamic> board_fash={
     5:['blank','blank','top-three','kill','kill_veto','fash'],
     6:['blank','blank','top-three','kill','kill_veto','fash'],
@@ -122,7 +123,21 @@ class _Game extends State<Game> {
                           TextButton(
                             child: Text('No'),
                             onPressed: () {
+                              round=round+1;
+                              number_rejected=number_rejected+1;
+                              if(number_rejected==3){
+                                number_rejected=0;
+                                if(dec[0]=='fash'){
+                                  fash_board.add('Done');
 
+                                }
+                                else if(dec[0]=='lib'){
+                                  lib_board.add('Done');
+
+                                }
+                                dec.removeAt(0);
+
+                              }
                               Navigator.of(context).pop();
                               setState(() { });
 
@@ -171,7 +186,7 @@ class _Game extends State<Game> {
       president_list.remove(widget.name[turn]);
       president_list.remove(widget.name[widget.name.indexOf(chancellor)]);
     }
-    if(!first_selected) {
+    if(!first_selected && !special) {
       chancellor = widget.name[(turn+1) % number_players];
       will_killed= widget.name[(turn+1) % number_players];
       will_Search= widget.name[(turn+1) % number_players];
@@ -270,21 +285,36 @@ class _Game extends State<Game> {
                 )
                 ),
                 SizedBox(height: 8.0),
-                ClipOval(
-                  child: Material(
-                    color: Colors.red,
-                    child: Container(
-                      child: Text(
-                        '1',
-                        style: TextStyle(fontSize: 20),
-                        textAlign: TextAlign.center,
-                      ),
-                      height: 25.0,
-                      width: 25.0,
-                      color: Colors.blue,
-                    ),
-                  ),
-                ),]+
+                Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                  children:
+                  [0,1,2,3].asMap().entries.map((entry)=>
+                  Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child:ClipOval(
+                        child: Material(
+                          child: Container(
+
+                            decoration: BoxDecoration(
+                              color:entry.key==number_rejected?Colors.blueAccent:Colors.white,
+                              border: Border.all(width: 5.0,color: entry.key==3?Colors.red:Colors.blueAccent,),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Text(
+                              '',
+                              style: TextStyle(fontSize: 20),
+                              textAlign: TextAlign.center,
+                            ),
+                            height: 40.0,
+                            width: 40.0,
+
+                          ),
+                        ),
+                      )
+                  )
+                  ).toList()
+                )
+                ]+
                   (state!='base'?<Widget>[]:<Widget>[
                 Padding(
                     padding: EdgeInsets.all(8.0),
@@ -602,7 +632,7 @@ class _Game extends State<Game> {
                           Padding(
                               padding: EdgeInsets.all(8.0),
                               child:Text(
-                                  'who you will the side:',
+                                  'whose side:',
                                   style: TextStyle(fontSize: 30)
                               )),
                           DropdownButton<String>(
@@ -704,7 +734,7 @@ class _Game extends State<Game> {
             ,
           )
         )
-    
+
       );
 
 
