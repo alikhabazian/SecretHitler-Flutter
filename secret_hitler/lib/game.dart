@@ -42,6 +42,9 @@ class _Game extends State<Game> {
   bool hitler_chancellor=false;
   bool special = false;
   int old_round=-1;
+  String last_chancellor='';
+  String last_president='';
+  // bool last_done=true;
 
 
   @override
@@ -110,7 +113,7 @@ class _Game extends State<Game> {
                           TextButton(
                             child: Text('Yes'),
                             onPressed: () {
-                              first_selected=false;
+                              first_selected=true;
                               state='elected';
                               president_selected=-1;
                               if(widget.roles[widget.name.indexOf(name)]=='Hitler'&& hitler_state){
@@ -125,6 +128,7 @@ class _Game extends State<Game> {
                             child: Text('No'),
                             onPressed: () {
                               round=round+1;
+                              first_selected=false;
                               number_rejected=number_rejected+1;
                               if(number_rejected==3){
                                 number_rejected=0;
@@ -168,6 +172,9 @@ class _Game extends State<Game> {
     print(old_round);
     print(number_players);
 
+    print('last_president : ${last_president}');
+    print('last_chancellor : ${last_chancellor}');
+
     if(fash_board.length>2){
       hitler_state=true;
     }
@@ -180,22 +187,36 @@ class _Game extends State<Game> {
     print(turn);
     print('dec : ${dec}');
     print('dis_dec : ${dis_dec}');
+    List<String> candidate_list=[...widget.name];
     List<String> chancellor_list=[...widget.name];
     List<String> president_list=[...widget.name];
+    candidate_list.remove(candidate_list[turn]);
+
     chancellor_list.remove(chancellor_list[turn]);
+    chancellor_list.remove(last_chancellor);
+    chancellor_list.remove(last_president);
+
+
+
     if(state=='next-persident') {
       president_list.remove(widget.name[turn]);
       president_list.remove(widget.name[widget.name.indexOf(chancellor)]);
     }
-    if(!first_selected && !special) {
-      chancellor = widget.name[(turn+1) % number_players];
-      will_killed= widget.name[(turn+1) % number_players];
-      will_Search= widget.name[(turn+1) % number_players];
-      will_president=president_list[(turn+1) % number_players];
+    print("first_selected : ${first_selected}");
+    if(!first_selected ) {
+      first_selected=true;
+      will_killed= candidate_list[0];
+      will_Search= candidate_list[0];
+      chancellor = chancellor_list[0];
+      if(!special) {
+        will_president = president_list[0];
+      }
     }
     print("chancellor : ${chancellor}");
+    print("will_killed : ${will_killed}");
     print('chancellor_selected : ${chancellor_selected}');
-    print("chancellor list : ${chancellor_list}");
+    print("candidate_list : ${candidate_list}");
+    print("chancellor_list : ${chancellor_list}");
     print("president list : ${president_list}");
 
     print('fash_board : ${fash_board}');
@@ -414,6 +435,7 @@ class _Game extends State<Game> {
                   )
               ),
               onPressed: () {
+                last_president=widget.name[turn];
                 state='president_discarded';
                 chancellor_selected=-1;
                 dis_dec.add(dec.removeAt(president_selected));
@@ -469,7 +491,8 @@ class _Game extends State<Game> {
                           )
                       ),
                       onPressed: () {
-
+                        first_selected=false;
+                        last_chancellor=chancellor;
                         if(dec[chancellor_selected]=='fash'){
                           fash_board.add('Done');
                           if(board_fash[number_players_at_start][fash_board.length-1]!='blank'){
@@ -581,7 +604,7 @@ class _Game extends State<Game> {
                                 will_killed = value!;
                               });
                             },
-                            items:chancellor_list.map<DropdownMenuItem<String>>((String value) {
+                            items:candidate_list.map<DropdownMenuItem<String>>((String value) {
                               return DropdownMenuItem<String>(
                                 value: value,
                                 child: Text(value),
@@ -647,7 +670,7 @@ class _Game extends State<Game> {
                                 will_Search = value!;
                               });
                             },
-                            items:chancellor_list.map<DropdownMenuItem<String>>((String value) {
+                            items:candidate_list.map<DropdownMenuItem<String>>((String value) {
                               return DropdownMenuItem<String>(
                                 value: value,
                                 child: Text(value),

@@ -138,6 +138,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   height: 50.0,
 
                     child:TextField(
+
                   controller: playerNameController[i],
                       decoration: InputDecoration(
                         hintText: 'Enter some text',
