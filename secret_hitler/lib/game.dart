@@ -96,7 +96,7 @@ class _Game extends State<Game> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Message'),
-          content: Text('Are you sure you select ${name} ad chancellor'),
+          content: Text('Are you sure you select ${name} as chancellor'),
           actions: <Widget>[
             TextButton(
               child: Text('Yes'),
@@ -166,6 +166,8 @@ class _Game extends State<Game> {
 
   @override
   Widget build(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
+    double height = MediaQuery.of(context).size.height;
     print(widget.name);
     print(first_starter);
     print(round);
@@ -225,19 +227,19 @@ class _Game extends State<Game> {
     List<TableCell> fac_table = [];
     for (int i = 0; i < 6; i++) {
 
-      fac_table.add(new TableCell(
+      fac_table.add(TableCell(
         verticalAlignment: TableCellVerticalAlignment.top,
         child: Container(
           child:fash_board.length>i?Image(image: AssetImage('assets/fash_policy.png')):(board_fash[number_players_at_start][i]=='blank'?null:Image(image: AssetImage('assets/'+board_fash[number_players_at_start][i]+'.png'))),
           height: 120,
-          width: 60,
+          width: (width*0.95)/6,
           color: i>=3?Colors.red[900]:Colors.red,
         ),
       ));
     }
     List<TableCell> lib_table= [];
     for (int i = 0; i < 6; i++) {
-      lib_table.add(new TableCell(
+      lib_table.add(TableCell(
         verticalAlignment: TableCellVerticalAlignment.top,
 
         child: Container(
@@ -246,7 +248,7 @@ class _Game extends State<Game> {
           // child:board_lib[i]=='blank'?null:Image(image: AssetImage('assets/'+board_lib[i]+'.png')),
 
           height: 120,
-          width: 60,
+          width:(width*0.95)/6,
           color: Colors.blue[400],
         ),
       ));
@@ -274,22 +276,23 @@ class _Game extends State<Game> {
             mainAxisAlignment: MainAxisAlignment.center,
               children:<Widget>[
 
-                SizedBox(height: 16.0),
+
                 Text(
                   (hitler_state&& (state!='lib win' && state!='fash win'))?'we are in a dangerous state if hitler became a chancellor fashists will win the game ':'',
                   style: TextStyle(fontSize: 15),
                   textAlign: TextAlign.center,
                 ),
+
                 Text(
-                  (state!='lib win' && state!='fash win')?'':'${state}s the game',
-                  style: TextStyle(fontSize: 30),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: 16.0),
+                    (state!='lib win' && state!='fash win')?'':'${state}s the game',
+                    style: TextStyle(fontSize: 30),
+                    textAlign: TextAlign.center,
+                  ),
+
                 InteractiveViewer(
                     boundaryMargin: const EdgeInsets.all(1.0),
                     minScale: 0.1,
-                    maxScale: 2,
+                    maxScale: 3,
                     child:Table(
                   border: TableBorder.all(),
                   columnWidths:const <int, TableColumnWidth>{
