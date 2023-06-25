@@ -31,7 +31,7 @@ class _Game extends State<Game> {
     9:['Search','Search','next-persident','kill','kill_veto','fash'],
     10:['Search','Search','next-persident','kill','kill_veto','fash'],
   };
-  List<String> board_lib=['blank','blank','blank','blank','blank','lib'];
+  List<String> board_lib=['blank','blank','blank','blank','lib','lib'];
   int president_selected=-1;
   int chancellor_selected=-1;
   List<String> fash_board=[];
@@ -233,7 +233,8 @@ class _Game extends State<Game> {
           child:fash_board.length>i?Image(image: AssetImage('assets/fash_policy.png')):(board_fash[number_players_at_start][i]=='blank'?null:Image(image: AssetImage('assets/'+board_fash[number_players_at_start][i]+'.png'))),
           height: 120,
           width: (width*0.95)/6,
-          color: i>=3?Colors.red[900]:Colors.red,
+          color: i>=3?Color.fromRGBO(185, 29, 8, 1):Color.fromRGBO(215, 51, 36, 1),
+
         ),
       ));
     }
@@ -248,8 +249,9 @@ class _Game extends State<Game> {
           // child:board_lib[i]=='blank'?null:Image(image: AssetImage('assets/'+board_lib[i]+'.png')),
 
           height: 120,
-          width:(width*0.95)/6,
-          color: Colors.blue[400],
+          width:(width*0.95)/5,
+          color: Color.fromRGBO(75, 144, 196, 1),
+          // color: Color.fromRGBO(101, 189, 203, 1),
         ),
       ));
     }
@@ -257,7 +259,7 @@ class _Game extends State<Game> {
 
     print("president_selected : ${president_selected}");
 
-    if(lib_board.length==6 || !is_hitler_alive){
+    if(lib_board.length==5 || !is_hitler_alive){
       state='lib win';
 
     }
@@ -270,8 +272,8 @@ class _Game extends State<Game> {
       appBar: AppBar(
         title: Text('Game'),
       ),
-      body:
-      Center(
+      body:SingleChildScrollView(
+      child: Center(
           child:Column(
             mainAxisAlignment: MainAxisAlignment.center,
               children:<Widget>[
@@ -293,21 +295,58 @@ class _Game extends State<Game> {
                     boundaryMargin: const EdgeInsets.all(1.0),
                     minScale: 0.1,
                     maxScale: 3,
-                    child:Table(
-                  border: TableBorder.all(),
-                  columnWidths:const <int, TableColumnWidth>{
-                    0: IntrinsicColumnWidth(),
-                    1: IntrinsicColumnWidth(),
-                    2: IntrinsicColumnWidth(),
-                    3: IntrinsicColumnWidth(),
-                    4: IntrinsicColumnWidth(),
-                    5: IntrinsicColumnWidth(),
-                  },
-                  children:<TableRow>[
-                    TableRow(children: fac_table),
-                    TableRow(children: lib_table),
-                  ]
-                )
+                    child:Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Table(
+                          // border: TableBorder(horizontalInside: BorderSide(width: 1, color: Colors.blue, style: BorderStyle.solid)),
+                            border: TableBorder.all(width: 1,color: Colors.white),
+                            columnWidths:const <int, TableColumnWidth>{
+                              0: IntrinsicColumnWidth(),
+                              1: IntrinsicColumnWidth(),
+                              2: IntrinsicColumnWidth(),
+                              3: IntrinsicColumnWidth(),
+                              4: IntrinsicColumnWidth(),
+                              5: IntrinsicColumnWidth(),
+                            },
+                            children:<TableRow>[
+                              TableRow(children: fac_table),
+                              // TableRow(children: lib_table),
+                            ]
+                        ),
+                        Table(
+                          // border: TableBorder(horizontalInside: BorderSide(width: 1, color: Colors.blue, style: BorderStyle.solid)),
+                            border: TableBorder.all(width: 1,color: Colors.white),
+                            columnWidths:const <int, TableColumnWidth>{
+                              0: IntrinsicColumnWidth(),
+                              1: IntrinsicColumnWidth(),
+                              2: IntrinsicColumnWidth(),
+                              3: IntrinsicColumnWidth(),
+                              4: IntrinsicColumnWidth(),
+                              5: IntrinsicColumnWidth(),
+                            },
+                            children:<TableRow>[
+                              // TableRow(children: fac_table),
+                              TableRow(children: lib_table),
+                            ]
+                        ),
+                        // Stack(
+                        //     children: [
+                        //       Container(
+                        //         width: width*0.95,
+                        //         height: (width*0.95)/2.6,
+                        //         decoration: BoxDecoration(
+                        //           color: Colors.white,
+                        //           // borderRadius: BorderRadius.circular(20),
+                        //         ),
+                        //         child: Image.asset('assets/Liberal_board.png'),
+                        //       ),
+                        //     ]
+                        // ),
+                      ],
+                    )
+
+
                 ),
                 SizedBox(height: 8.0),
                 Row(
@@ -761,6 +800,7 @@ class _Game extends State<Game> {
             ,
           )
         )
+      )
 
       );
 
