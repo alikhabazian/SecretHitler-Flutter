@@ -97,6 +97,7 @@ class _RollAssigning extends State<RollAssigning> {
     print(roles);
     bool every_one_know_his_role=false;
     every_one_know_his_role=seen.every((value)=>value==true);
+    // every_one_know_his_role=true;
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
     return Scaffold(
@@ -124,6 +125,14 @@ class _RollAssigning extends State<RollAssigning> {
                     extend=extend+'Hitler:'+widget.data[i]+'\n';
                   }
                 }
+              }
+              else if(roles[entry.key]=='Hitler' && roles.length<=6){
+                for (int i = 0; i < widget.data.length; i++) {
+                  if((roles[i]=='Fascist') &&(i!=entry.key) ){
+                    extend=extend+'Fascist:'+widget.data[i]+'\n';
+                  }
+                }
+
               }
 
 

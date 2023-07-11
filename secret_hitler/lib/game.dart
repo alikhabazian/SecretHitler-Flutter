@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:math';
 // RollAssigning(name: widget.data,roles:roles)
 class Game extends StatefulWidget {
   final List<String> name;
@@ -31,7 +32,7 @@ class _Game extends State<Game> {
     9:['Search','Search','next-persident','kill','kill_veto','fash'],
     10:['Search','Search','next-persident','kill','kill_veto','fash'],
   };
-  List<String> board_lib=['blank','blank','blank','blank','blank','lib'];
+  List<String> board_lib=['blank','blank','blank','blank','lib','lib'];
   int president_selected=-1;
   int chancellor_selected=-1;
   List<String> fash_board=[];
@@ -41,6 +42,7 @@ class _Game extends State<Game> {
   bool hitler_state=false;
   bool hitler_chancellor=false;
   bool special = false;
+  bool hide = false;
   int old_round=-1;
   String last_chancellor='';
   String last_president='';
@@ -59,6 +61,9 @@ class _Game extends State<Game> {
       dec.add('fash');
     }
     dec=dec..shuffle();
+    var rng = Random();
+    first_starter=rng.nextInt(number_players_at_start);
+    print("first_starter:${first_starter}");
     setState(() {});
   }
 
@@ -257,7 +262,7 @@ class _Game extends State<Game> {
 
     print("president_selected : ${president_selected}");
 
-    if(lib_board.length==6 || !is_hitler_alive){
+    if(lib_board.length==5 || !is_hitler_alive){
       state='lib win';
 
     }
@@ -271,7 +276,8 @@ class _Game extends State<Game> {
         title: Text('Game'),
       ),
       body:
-      Center(
+      SingleChildScrollView(
+          child:Center(
           child:Column(
             mainAxisAlignment: MainAxisAlignment.center,
               children:<Widget>[
@@ -376,17 +382,29 @@ class _Game extends State<Game> {
                         );
                       }).toList(),
                     ),
-                    TextButton(
+                    // TextButton(
+                    //     child: Container(
+                    //       color:Colors.blue,
+                    //         child:Text('Selected!',style:TextStyle(color:Colors.white))
+                    //     ),
+                    //     onPressed: () {
+                    //       showMessageDialog(context,chancellor);
+                    //     },
+                    // )
+                  ]
+                ),
+                TextButton(
                         child: Container(
+                          height: (height*0.95)/15,
+                          width:(width*0.95)/3,
                           color:Colors.blue,
-                            child:Text('Selected!',style:TextStyle(color:Colors.white))
+                            child:
+                            Center(child:Text('Selected!',style:TextStyle(color:Colors.white, fontSize: (width*0.95)/15),textAlign: TextAlign.center))
                         ),
                         onPressed: () {
                           showMessageDialog(context,chancellor);
                         },
                     )
-                  ]
-                )
 
               ]
                   )+
@@ -458,7 +476,7 @@ class _Game extends State<Game> {
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children:<Widget>[]+dec.sublist(0, 2).asMap().entries.map((entry)=>
+                      children:<Widget>[]+(hide?['hide','hide']:dec.sublist(0, 2)).asMap().entries.map((entry)=>
                           Padding(
                               padding: EdgeInsets.all(8.0),
                               child: InkWell(
@@ -470,11 +488,11 @@ class _Game extends State<Game> {
                                 },
                                 child:Container(
                                   decoration: BoxDecoration(
-                                      color :entry.value=='lib'?Colors.blue[400]:Colors.red,
+                                      color : (entry.value=='hide'?Colors.grey[400]:(entry.value=='lib'?Colors.blue[400]:Colors.red)),
                                       border: chancellor_selected!=entry.key?null:Border.all(width: 5.0,color: Colors.blueAccent)
                                   ),
 
-                                  child:Image(image: AssetImage('assets/'+entry.value+'.png')),
+                                  child:entry.value=='hide'?Center(child:Icon(Icons.question_mark_outlined,size: 70.0,)):Image(image: AssetImage('assets/'+entry.value+'.png')),
 
                                   height: 155,
                                   width: 85,
@@ -484,6 +502,9 @@ class _Game extends State<Game> {
                           )
                       ).toList(),
                     ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children:[
                     TextButton(
                       child: Container(
                           height: 40,
@@ -522,7 +543,23 @@ class _Game extends State<Game> {
                         }
                         setState(() {});
                       },
+                    ),
+                    TextButton(
+                      child: Container(
+                          height: 40,
+                          width: 80,
+                          color:Colors.blue,
+                          child:Center(
+                              child:Text('Hide!',style:TextStyle(color:Colors.white), textAlign: TextAlign.center,)
+                          )
+                      ),
+                      onPressed: () {
+                        hide= !hide;
+                        setState((){});
+                      },
+                    )]
                     )
+
                   ]
                   )+
                   (state!='top-three'?<Widget>[]:<Widget>[
@@ -761,6 +798,7 @@ class _Game extends State<Game> {
             ,
           )
         )
+      )
 
       );
 

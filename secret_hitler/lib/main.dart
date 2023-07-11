@@ -102,7 +102,8 @@ class _MyHomePageState extends State<MyHomePage> {
           );
         } else {
           showMessageDialog(context, 'You must fill player ${i+1} name');
-          break;
+          return;
+          // break;
         }
 
       }
@@ -121,6 +122,9 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     playerNameController = [];
     playerWidgets = [];
+    for (int i = 0; i < _numPlayers; i++) {
+      playerNameController.add(new TextEditingController());
+    }
     for (int i = 0; i < _numPlayers; i++) {
       playerNameController.add(new TextEditingController());
     }
