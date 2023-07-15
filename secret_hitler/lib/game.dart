@@ -244,6 +244,25 @@ class _Game extends State<Game> {
     }
     List<TableCell> lib_table= [];
     for (int i = 0; i < 6; i++) {
+      if(i==5){
+        lib_table.add(TableCell(
+        verticalAlignment: TableCellVerticalAlignment.middle,
+
+        child: RotatedBox(
+          quarterTurns: 1,
+          child:Container(
+          // child:lib_board.length>i?Image(image: AssetImage('assets/lib_policy.png')):(board_lib[i]=='blank'?null:Image(image: AssetImage('assets/'+board_lib[i]+'.png'))),
+
+          child:board_lib[i]=='blank'?null:Image(color:Colors.blue[400],image: AssetImage('assets/'+board_lib[i]+'.png')),
+
+          height: 70,
+          width:(width*0.95)/6,
+          color: Colors.white,
+        ),
+        )
+      ));
+      }
+      else{
       lib_table.add(TableCell(
         verticalAlignment: TableCellVerticalAlignment.top,
 
@@ -257,6 +276,7 @@ class _Game extends State<Game> {
           color: Colors.blue[400],
         ),
       ));
+      }
     }
 
 
@@ -300,7 +320,10 @@ class _Game extends State<Game> {
                     minScale: 0.1,
                     maxScale: 3,
                     child:Table(
-                  border: TableBorder.all(),
+                  border: TableBorder.all(
+                    // color:Colors.white,
+                    // width:2
+                  ),
                   columnWidths:const <int, TableColumnWidth>{
                     0: IntrinsicColumnWidth(),
                     1: IntrinsicColumnWidth(),
@@ -399,7 +422,7 @@ class _Game extends State<Game> {
                           width:(width*0.95)/3,
                           color:Colors.blue,
                             child:
-                            Center(child:Text('Selected!',style:TextStyle(color:Colors.white, fontSize: (width*0.95)/15),textAlign: TextAlign.center))
+                            Center(child:Text('Select!',style:TextStyle(color:Colors.white, fontSize: (width*0.95)/15),textAlign: TextAlign.center))
                         ),
                         onPressed: () {
                           showMessageDialog(context,chancellor);
@@ -452,7 +475,7 @@ class _Game extends State<Game> {
                   width: 80,
                   color:Colors.blue,
                   child:Center(
-                      child:Text('Selected!',style:TextStyle(color:Colors.white), textAlign: TextAlign.center,)
+                      child:Text('Discard!',style:TextStyle(color:Colors.white), textAlign: TextAlign.center,)
                   )
               ),
               onPressed: () {
@@ -511,7 +534,7 @@ class _Game extends State<Game> {
                           width: 80,
                           color:Colors.blue,
                           child:Center(
-                              child:Text('Selected!',style:TextStyle(color:Colors.white), textAlign: TextAlign.center,)
+                              child:Text('Select!',style:TextStyle(color:Colors.white), textAlign: TextAlign.center,)
                           )
                       ),
                       onPressed: () {
@@ -550,7 +573,7 @@ class _Game extends State<Game> {
                           width: 80,
                           color:Colors.blue,
                           child:Center(
-                              child:Text('Hide!',style:TextStyle(color:Colors.white), textAlign: TextAlign.center,)
+                              child:Text(hide?'Unhide!':'Hide!',style:TextStyle(color:Colors.white), textAlign: TextAlign.center,)
                           )
                       ),
                       onPressed: () {
