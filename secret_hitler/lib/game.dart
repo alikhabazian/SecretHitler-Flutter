@@ -43,6 +43,8 @@ class _Game extends State<Game> {
   bool hitler_chancellor=false;
   bool special = false;
   bool hide = false;
+  bool veto = false;
+  bool posible_veto = false;
   int old_round=-1;
   String last_chancellor='';
   String last_president='';
@@ -95,7 +97,7 @@ class _Game extends State<Game> {
     );
   }
 
-  void showMessageDialog(BuildContext context,String name) {
+  void showMessageDialog(BuildContext context,String name,int turn) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -119,6 +121,9 @@ class _Game extends State<Game> {
                             child: Text('Yes'),
                             onPressed: () {
                               first_selected=true;
+                              if(veto && widget.roles[widget.name.indexOf(name)]=='Liberal' && widget.roles[widget.name[turn]]=='Liberal'){
+                                posible_veto=true;
+                              }
                               state='elected';
                               president_selected=-1;
                               if(widget.roles[widget.name.indexOf(name)]=='Hitler'&& hitler_state){
@@ -425,7 +430,7 @@ class _Game extends State<Game> {
                             Center(child:Text('Select!',style:TextStyle(color:Colors.white, fontSize: (width*0.95)/15),textAlign: TextAlign.center))
                         ),
                         onPressed: () {
-                          showMessageDialog(context,chancellor);
+                          showMessageDialog(context,chancellor,turn);
                         },
                     )
 
@@ -545,6 +550,10 @@ class _Game extends State<Game> {
                           if(board_fash[number_players_at_start][fash_board.length-1]!='blank'){
                             print('it is ${board_fash[number_players_at_start][fash_board.length-1]} state');
                             state=board_fash[number_players_at_start][fash_board.length-1];
+                            if (state=='kill_veto'){
+                              state='kill';
+                              veto=true;
+                            }
                           }
                           else {
                             state = 'base';
@@ -580,7 +589,36 @@ class _Game extends State<Game> {
                         hide= !hide;
                         setState((){});
                       },
-                    )]
+                    )+(!posible_veto?<Widget>[]:<Widget>[
+                      TextButton(
+                      child: Container(
+                          height: 40,
+                          width: 80,
+                          color:Colors.orange,
+                          child:Center(
+                              child:Text("Veto",style:TextStyle(color:Colors.white), textAlign: TextAlign.center,)
+                          )
+                      ),
+                      onPressed: () {
+                        dis_dec.add(dec.removeAt(0));
+                        dis_dec.add(dec.removeAt(0));
+                        if(dec.length==2){
+                          dec=dec+dis_dec;
+                          dec=dec..shuffle();
+                          dis_dec=[];
+                        }
+                        posible_veto=false;
+                        state='base';
+                        round=round+1;
+                        first_selected=false;
+                        setState((){});
+                      },
+                    )
+
+                    ])
+                    
+                    
+                    ]
                     )
 
                   ]
@@ -632,6 +670,8 @@ class _Game extends State<Game> {
                           top_tree_seen = false;
                           state='base';
                           round=round+1;
+                          first_selected=false;
+                          
                         }
                         setState(() {});
                       },
