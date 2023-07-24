@@ -121,7 +121,7 @@ class _Game extends State<Game> {
                             child: Text('Yes'),
                             onPressed: () {
                               first_selected=true;
-                              if(veto && widget.roles[widget.name.indexOf(name)]=='Liberal' && widget.roles[widget.name[turn]]=='Liberal'){
+                              if(veto && widget.roles[widget.name.indexOf(name)]=='Liberal' && widget.roles[turn]=='Liberal'){
                                 posible_veto=true;
                               }
                               state='elected';
@@ -532,7 +532,7 @@ class _Game extends State<Game> {
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children:[
+                      children:<Widget>[
                     TextButton(
                       child: Container(
                           height: 40,
@@ -589,36 +589,37 @@ class _Game extends State<Game> {
                         hide= !hide;
                         setState((){});
                       },
-                    )+(!posible_veto?<Widget>[]:<Widget>[
-                      TextButton(
-                      child: Container(
-                          height: 40,
-                          width: 80,
-                          color:Colors.orange,
-                          child:Center(
-                              child:Text("Veto",style:TextStyle(color:Colors.white), textAlign: TextAlign.center,)
-                          )
-                      ),
-                      onPressed: () {
-                        dis_dec.add(dec.removeAt(0));
-                        dis_dec.add(dec.removeAt(0));
-                        if(dec.length==2){
-                          dec=dec+dis_dec;
-                          dec=dec..shuffle();
-                          dis_dec=[];
-                        }
-                        posible_veto=false;
-                        state='base';
-                        round=round+1;
-                        first_selected=false;
-                        setState((){});
-                      },
                     )
+                    
+                    ] +
+                          (!posible_veto?<Widget>[]:<Widget>[
+                            TextButton(
+                              child: Container(
+                                  height: 40,
+                                  width: 80,
+                                  color:Colors.orange,
+                                  child:Center(
+                                      child:Text("Veto",style:TextStyle(color:Colors.white), textAlign: TextAlign.center,)
+                                  )
+                              ),
+                              onPressed: () {
+                                dis_dec.add(dec.removeAt(0));
+                                dis_dec.add(dec.removeAt(0));
+                                if(dec.length==2){
+                                  dec=dec+dis_dec;
+                                  dec=dec..shuffle();
+                                  dis_dec=[];
+                                }
+                                posible_veto=false;
+                                state='base';
+                                round=round+1;
+                                first_selected=false;
+                                setState((){});
+                              },
+                            )
 
-                    ])
-                    
-                    
-                    ]
+                          ])
+
                     )
 
                   ]

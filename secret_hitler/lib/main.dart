@@ -1,9 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:secret_hitler/rollassigning.dart';
-
+import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 void main() {
+  // runApp(const MyApp());
   runApp(const MyApp());
 }
+
+
+
+
+
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -25,10 +33,93 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.orange,
       ),
-      home: const MyHomePage(title: 'Secret Hitler'),
+      // home: const MyHomePage(title: 'Secret Hitler'),
+        home: const Home(),
     );
   }
 }
+
+
+class Home extends StatelessWidget {
+  const Home({Key? key}) : super(key: key);
+
+  void _launchURL(_url) async {
+    if (await canLaunchUrlString(_url)) {
+      await launchUrlString(_url);
+    } else {
+      throw 'Could not launch $_url';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
+    double height = MediaQuery.of(context).size.height;
+    final ButtonStyle style = ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 20));
+
+    return Scaffold(
+      backgroundColor: Colors.amber[50],
+      body: SafeArea(
+        child:Center(
+        child: Column(
+          mainAxisAlignment:MainAxisAlignment.spaceEvenly,
+          children: [
+            Padding(
+              padding: EdgeInsets.all(16.0),
+              child:Image.asset(
+                "assets/logo.png",
+                // height: 125.0,
+                // width: 125.0,
+              ),
+
+            ),
+            SizedBox(
+              width: width*0.6,
+              height: 50,
+              child:ElevatedButton(
+                style: style,
+                onPressed: (){
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => MyHomePage(title:"Secret Hitler" )),
+                  );
+                },
+                child: const Text('Play'),
+              ),
+            ),
+            // SizedBox(height: 20,),
+            SizedBox(
+              width: width*0.6,
+              height: 50,
+              child:ElevatedButton(
+                style: style,
+                onPressed: (){
+                  _launchURL('https://www.secrethitler.com/assets/Secret_Hitler_Rules.pdf');
+                },
+                child: const Text('How to Play'),
+              ),
+            ),
+
+
+            Padding(
+                padding: EdgeInsets.all(16.0),
+                child:Image.asset(
+                  "assets/box.gif",
+                  // height: 125.0,
+                  // width: 125.0,
+                ),
+
+            )
+
+          ],
+        ),
+      ),
+
+    )
+    );
+  }
+}
+
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
