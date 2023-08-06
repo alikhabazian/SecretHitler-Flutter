@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:secret_hitler/rollassigning.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:url_launcher/url_launcher_string.dart';
+// import 'package:url_launcher/url_launcher.dart';
+// import 'package:url_launcher/url_launcher_string.dart';
+
 void main() {
   // runApp(const MyApp());
   runApp(const MyApp());
@@ -43,13 +44,13 @@ class MyApp extends StatelessWidget {
 class Home extends StatelessWidget {
   const Home({Key? key}) : super(key: key);
 
-  void _launchURL(_url) async {
-    if (await canLaunchUrlString(_url)) {
-      await launchUrlString(_url);
-    } else {
-      throw 'Could not launch $_url';
-    }
-  }
+  // void _launchURL(_url) async {
+  //   if (await canLaunchUrlString(_url)) {
+  //     await launchUrlString(_url);
+  //   } else {
+  //     throw 'Could not launch $_url';
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -93,8 +94,9 @@ class Home extends StatelessWidget {
               height: 50,
               child:ElevatedButton(
                 style: style,
-                onPressed: (){
-                  _launchURL('https://www.secrethitler.com/assets/Secret_Hitler_Rules.pdf');
+                onPressed: ()async{
+                  // _launchURL('https://www.secrethitler.com/assets/Secret_Hitler_Rules.pdf');
+
                 },
                 child: const Text('How to Play'),
               ),
