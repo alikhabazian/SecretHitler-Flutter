@@ -37,13 +37,27 @@ class _RollAssigning extends State<RollAssigning> {
     setState(() { });
   }
 
-  void showMessageDialog(BuildContext context,int index ,String name,String role,String extend) {
+  void showMessageDialog(BuildContext context,int index ,String name,String role,List<TextSpan> extend) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
+        // print(DefaultTextStyle.of(context).style);
         return AlertDialog(
           title: Text('Message'),
-          content: Text('Are you sure you are ${name}'),
+          // "Please confirm your identity, Jack, to reveal your role."
+          //RichText(text: TextSpan(
+            // style: DefaultTextStyle.of(context).style,
+          // )
+          content: RichText(
+              text: TextSpan(
+                style:TextStyle(color:Colors.black),
+                children: <TextSpan>[
+                  TextSpan(text: 'Please confirm your identity, '),
+                  TextSpan(text: name, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                  TextSpan(text: ' to reveal your role.'),
+                ],
+              ),
+            ),
           actions: <Widget>[
             TextButton(
               child: Text('Yes'),
@@ -56,7 +70,18 @@ class _RollAssigning extends State<RollAssigning> {
                     seen[index]=true;
                     return AlertDialog(
                       title: Text('Message'),
-                      content: Text('You are ${role}\n'+extend),
+                      content:RichText(
+                                text: TextSpan(
+                                  style:TextStyle(color:Colors.black),
+                                  children: <TextSpan>[
+                                    TextSpan(text: 'You are '),
+                                    TextSpan(text: '${role}\n', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                                    TextSpan(text: '---------------\n'),
+                                    
+                                  ]+extend,
+                                ),
+                              ),
+                      // content: Text('You are ${role}\n'+extend),
                       actions: <Widget>[
                         TextButton(
                           child: Text('Ok'),
@@ -115,21 +140,26 @@ class _RollAssigning extends State<RollAssigning> {
           ]+widget.data.asMap().entries.map((entry)=>
             GestureDetector(
             onTap: seen[entry.key] ?null:(){
-              var extend='';
+              List<TextSpan> extend=[];
               if(roles[entry.key]=='Fascist'){
                 for (int i = 0; i < widget.data.length; i++) {
                   if((roles[i]=='Fascist') &&(i!=entry.key) ){
-                    extend=extend+'Fascist:'+widget.data[i]+'\n';
+                    extend.add(TextSpan(text:'Fascist: '));
+                    extend.add(TextSpan(text:'${widget.data[i]}\n', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)));
                   }
                   else if(roles[i]=='Hitler'){
-                    extend=extend+'Hitler:'+widget.data[i]+'\n';
+                    // extend=extend+'Hitler:'+widget.data[i]+'\n';
+                    extend.add(TextSpan(text:'Hitler: '));
+                    extend.add(TextSpan(text:'${widget.data[i]}\n', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16,color:Colors.red)));
                   }
                 }
               }
               else if(roles[entry.key]=='Hitler' && roles.length<=6){
                 for (int i = 0; i < widget.data.length; i++) {
                   if((roles[i]=='Fascist') &&(i!=entry.key) ){
-                    extend=extend+'Fascist:'+widget.data[i]+'\n';
+                    // extend=extend+'Fascist:'+widget.data[i]+'\n';
+                    extend.add(TextSpan(text:'Fascist: '));
+                    extend.add(TextSpan(text:'${widget.data[i]}\n', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)));
                   }
                 }
 

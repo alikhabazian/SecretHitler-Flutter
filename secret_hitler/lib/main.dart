@@ -60,10 +60,11 @@ class Home extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Colors.amber[50],
-      body: SafeArea(
+      body: SingleChildScrollView(
+        child:SafeArea(
         child:Center(
         child: Column(
-          mainAxisAlignment:MainAxisAlignment.spaceEvenly,
+          mainAxisAlignment:MainAxisAlignment.spaceBetween,
           children: [
             Padding(
               padding: EdgeInsets.all(16.0),
@@ -88,7 +89,7 @@ class Home extends StatelessWidget {
                 child: const Text('Play'),
               ),
             ),
-            // SizedBox(height: 20,),
+            SizedBox(height: 20,),
             SizedBox(
               width: width*0.6,
               height: 50,
@@ -118,6 +119,7 @@ class Home extends StatelessWidget {
       ),
 
     )
+      )
     );
   }
 }
@@ -146,6 +148,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int _numPlayers = 5;
   List<TextEditingController> playerNameController = [];
   List<Widget> playerWidgets = [];
+  bool first_time=true;
 
   void _incrementPlayers() {
     setState(() {
@@ -213,14 +216,33 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    playerNameController = [];
+    // playerNameController = [];
     playerWidgets = [];
-    for (int i = 0; i < _numPlayers; i++) {
-      playerNameController.add(new TextEditingController());
+    if (first_time){
+      for (int i = 0; i < _numPlayers; i++) {
+        playerNameController.add(new TextEditingController());
+      }
+      first_time=false;
     }
-    for (int i = 0; i < _numPlayers; i++) {
-      playerNameController.add(new TextEditingController());
+    else{
+      if(_numPlayers==playerNameController.length){
+        print('every thing is ok');
+      }
+      else if (_numPlayers<playerNameController.length){
+        while(_numPlayers<playerNameController.length){
+           playerNameController.removeLast();
+        }
+      }
+      else if (_numPlayers>playerNameController.length){
+        while(_numPlayers>playerNameController.length){
+           playerNameController.add(new TextEditingController());
+        }
+      }
+      // if(playerNameController.length)
     }
+    // for (int i = 0; i < _numPlayers; i++) {
+    //   playerNameController.add(new TextEditingController());
+    // }
 
 
 
@@ -229,7 +251,10 @@ class _MyHomePageState extends State<MyHomePage> {
           Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children:[
-                Text('Player ${i + 1} name :'),
+                Padding(
+                  child:Text('Player ${i + 1} name :',style:TextStyle(fontSize: 20)),
+                  padding:EdgeInsets.all(8.0),
+                  ),
                 SizedBox(
                   width: 200.0,
                   height: 50.0,
@@ -238,7 +263,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
                   controller: playerNameController[i],
                       decoration: InputDecoration(
-                        hintText: 'Enter some text',
+                        hintText: "Enter palyer's name",
                         border: OutlineInputBorder(),
                       ),
                 ),
@@ -282,9 +307,15 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             SizedBox(height: 16.0),
-            const Text(
-              'Number of Players:',
-            ),
+            const Padding(
+                  child:Text(
+                    'Number of Players:',
+                    style: TextStyle(fontSize: 30,fontWeight: FontWeight.bold),
+                    ),
+                  padding:EdgeInsets.all(4)
+
+                ),
+            
             // Text(
             //   '$_counter',
             //   style: Theme.of(context).textTheme.headlineMedium,
@@ -292,6 +323,7 @@ class _MyHomePageState extends State<MyHomePage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                
                 ClipOval(
                   child: Material(
                     color: Colors.blue,
@@ -305,7 +337,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 Container(
                     padding: const EdgeInsets.all(16.0),
 
-                    child:Text('$_numPlayers', style: TextStyle(fontSize: 50),)
+                    child:Text('$_numPlayers', style: TextStyle(fontSize: 50,fontWeight: FontWeight.bold),)
                 ),
                 ClipOval(
                   child: Material(
