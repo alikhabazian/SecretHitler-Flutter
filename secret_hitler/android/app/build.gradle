@@ -21,6 +21,9 @@ if (flutterVersionCode =='1') {
 if (flutterVersionCode =='2') {
     flutterVersionCode = '3'
 }
+if (flutterVersionCode =='3') {
+    flutterVersionCode = '4'
+}
 
 
 def flutterVersionName = localProperties.getProperty('flutter.versionName')

@@ -72,6 +72,7 @@ class _Game extends State<Game> {
   void showRoleDialog(BuildContext context,String name) {
     showDialog(
       context: context,
+      barrierDismissible:false,
       builder: (BuildContext context) {
         String rool='';
         if (widget.roles[widget.name.indexOf(name)]=='Liberal'){
@@ -82,7 +83,19 @@ class _Game extends State<Game> {
         }
         return AlertDialog(
           title: Text('Message'),
-          content: Text('You searched ${name} and it is ${rool}'),
+          // content: Text("You investigated ${name}, and their role is ${role}."),
+          content:RichText(
+                      text: TextSpan(
+                        style:TextStyle(color:Colors.black),
+                        children: <TextSpan>[
+                          TextSpan(text: 'You investigated '),
+                          TextSpan(text: '${name}', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                          TextSpan(text: ' and their role is '),
+                          TextSpan(text: '${rool}.', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+
+                        ],
+                      ),
+                    ),
           actions: <Widget>[
             TextButton(
               child: Text('OK'),
@@ -102,8 +115,19 @@ class _Game extends State<Game> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Message'),
-          content: Text('Are you sure you select ${name} as chancellor'),
+          title: Text('Confirmation'),
+          //"Please confirm your selection of ${name} as Chancellor."
+          // content: Text('Are you sure you select ${name} as chancellor'),
+          content:RichText(
+                      text: TextSpan(
+                        style:TextStyle(color:Colors.black),
+                        children: <TextSpan>[
+                          TextSpan(text: 'Please confirm your selection of '),
+                          TextSpan(text: '${name}', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                          TextSpan(text: ' as Chancellor.'),
+                        ],
+                      ),
+                    ),
           actions: <Widget>[
             TextButton(
               child: Text('Yes'),
@@ -114,8 +138,8 @@ class _Game extends State<Game> {
                     context: context,
                     builder: (BuildContext context) {
                       return AlertDialog(
-                        title: Text('Message'),
-                        content: Text('is the Government got elected?'),
+                        title: Text('Election'),
+                        content: Text("Has the election for the government concluded?"),
                         actions: <Widget>[
                           TextButton(
                             child: Text('Yes'),
@@ -306,19 +330,42 @@ class _Game extends State<Game> {
           child:Column(
             mainAxisAlignment: MainAxisAlignment.center,
               children:<Widget>[
+                SizedBox(height: 8.0),
+                RichText(
+                  text: TextSpan(
+                    style:TextStyle(color:Colors.black,fontSize: 18),
+                    children: <TextSpan>[
+                      if (last_president!='')... [
+                      TextSpan(text: 'Last president: '),
+                      TextSpan(text: '${last_president}\n', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                      ],
+                      if (last_chancellor!='')... [
+                      TextSpan(text: 'Last chancellor: '),
+                      TextSpan(text: '${last_chancellor}\n', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+          
+                      ]
+                    ],
+                  ),
+                ),
 
 
-                Text(
-                  (hitler_state&& (state!='lib win' && state!='fash win'))?'we are in a dangerous state if hitler became a chancellor fashists will win the game ':'',
+                if ((hitler_state&& (state!='lib win' && state!='fash win'))) ...<Widget>[
+                  Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child:Text(
+                  "We stand at a precipice of danger; should Hitler ascend as Chancellor, the forces of fascism shall claim victory.",
                   style: TextStyle(fontSize: 15),
                   textAlign: TextAlign.center,
                 ),
+                  )
+                ],
 
-                Text(
-                    (state!='lib win' && state!='fash win')?'':'${state}s the game',
+                if (!(state!='lib win' && state!='fash win')) Text(
+                    (state=='lib win')? "Liberals Win the Game" : "Fascists Win the Game",
                     style: TextStyle(fontSize: 30),
                     textAlign: TextAlign.center,
                   ),
+
 
                 InteractiveViewer(
                     boundaryMargin: const EdgeInsets.all(1.0),
@@ -377,11 +424,26 @@ class _Game extends State<Game> {
                   (state!='base'?<Widget>[]:<Widget>[
                 Padding(
                     padding: EdgeInsets.all(8.0),
-                    child:Text(
-                        'It is round ${(round+1).toString()}\n ${widget.name[turn]} must choose Chancellor',
-                        style: TextStyle(fontSize: 20),
-                        textAlign: TextAlign.center,
-                    )
+                    //"Round 3 has begun."
+                    //"Jack, select your Chancellor for the upcoming election."
+                    // child:Text(
+                    //     'It is round ${(round+1).toString()}\n ${widget.name[turn]} must choose Chancellor',
+                    //     style: TextStyle(fontSize: 20),
+                    //     textAlign: TextAlign.center,
+                    // )
+                    child:RichText(
+                      textAlign: TextAlign.center,
+                      text: TextSpan(
+                        style:TextStyle(color:Colors.black,fontSize: 20),
+                        children: <TextSpan>[
+                          TextSpan(text: 'Round '),
+                          TextSpan(text: '${round+1}', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
+                          TextSpan(text: ' has begun.\n'),
+                          TextSpan(text: '${widget.name[turn]},',style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28)),
+                          TextSpan(text: ' select your Chancellor for the upcoming election.'),
+                        ],
+                      ),
+                    ),
                 ),
                 Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -389,7 +451,7 @@ class _Game extends State<Game> {
                     Padding(
                         padding: EdgeInsets.all(8.0),
                         child:Text(
-                      'Chancellor:',
+                      'Your Chancellor: ',
                       style: TextStyle(fontSize: 30)
                     )),
                     DropdownButton<String>(
@@ -439,11 +501,26 @@ class _Game extends State<Game> {
                   (state!='elected'?<Widget>[]:<Widget>[
             Padding(
               padding: EdgeInsets.all(8.0),
-              child:Text(
-              '${widget.name[turn]},mr president, pick a card to get discarded',
-              style: TextStyle(fontSize: 15),
-              textAlign: TextAlign.center,
-              )
+              //"${widget.name[turn]}, in your esteemed role as the President, please select a card to be discarded."
+              // child:Text(
+              // '${widget.name[turn]},mr president, pick a card to get discarded',
+              // style: TextStyle(fontSize: 15),
+              // textAlign: TextAlign.center,
+              // )
+              child:RichText(
+                    textAlign: TextAlign.center,
+                    text: TextSpan(
+                        style:TextStyle(color:Colors.black,fontSize: 15),
+                        children: <TextSpan>[
+                          TextSpan(text: '${widget.name[turn]},', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
+                          TextSpan(text: ' in your esteemed role as the'),
+                          TextSpan(text: ' President,',style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                          TextSpan(text: ' please select a policy card to be discarded.'),
+
+
+                        ],
+                      ),
+                    ),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -496,11 +573,20 @@ class _Game extends State<Game> {
                   (state!='president_discarded'?<Widget>[]:<Widget>[
                     Padding(
                         padding: EdgeInsets.all(8.0),
-                        child:Text(
-                          '${chancellor},mr chancellor, pick a card to select policy',
-                          style: TextStyle(fontSize: 15),
+                        //"${chancellor}, entrusted as the Chancellor, graciously pick a card to shape our policy."
+                        child:RichText(
                           textAlign: TextAlign.center,
-                        )
+                      text: TextSpan(
+                        style:TextStyle(color:Colors.black,fontSize: 15),
+                        children: <TextSpan>[
+                          TextSpan(text: '${chancellor},', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
+                          TextSpan(text: ' entrusted as the'),
+                          TextSpan(text: ' Chancellor,', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                          TextSpan(text: ' graciously pick a card to shape our policy.'),
+
+                        ],
+                      ),
+                    ),
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -627,11 +713,24 @@ class _Game extends State<Game> {
                   (state!='top-three'?<Widget>[]:<Widget>[
                     Padding(
                         padding: EdgeInsets.all(8.0),
-                        child:Text(
-                          '${widget.name[turn]},mr president, If you are ready you can see top three dec',
-                          style: TextStyle(fontSize: 15),
-                          textAlign: TextAlign.center,
-                        )
+                        //"${widget.name[turn]}, as the President, you may now privately reveal the top three cards."
+                        // child:Text(
+                        //   '${widget.name[turn]},mr president, If you are ready you can see top three dec',
+                        //   style: TextStyle(fontSize: 15),
+                        //   textAlign: TextAlign.center,
+                        // )
+                        child:RichText(
+                        textAlign:TextAlign.center,
+                        text: TextSpan(
+                          style:TextStyle(color:Colors.black,fontSize: 20),
+                          children: <TextSpan>[
+                            TextSpan(text: '${widget.name[turn]},', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28)),
+                            TextSpan(text: ' as the '),
+                            TextSpan(text: 'President,',style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
+                            TextSpan(text: ' you may now privately reveal the top three  policy cards.'),
+                          ],
+                      ),
+                    ),
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -657,10 +756,10 @@ class _Game extends State<Game> {
                     TextButton(
                       child: Container(
                           height: 40,
-                          width: 80,
+                          width: 90,
                           color:Colors.blue,
                           child:Center(
-                              child:Text(top_tree_seen?'Ok':'Show cards',style:TextStyle(color:Colors.white), textAlign: TextAlign.center,)
+                              child:Text(top_tree_seen?"I've Seen":'Show cards',style:TextStyle(color:Colors.white), textAlign: TextAlign.center,)
                           )
                       ),
                       onPressed: () {
@@ -682,11 +781,24 @@ class _Game extends State<Game> {
                   ((state!='kill'&&state!='kill_veto')?<Widget>[]:<Widget>[
                     Padding(
                         padding: EdgeInsets.all(8.0),
-                        child:Text(
-                          '${widget.name[turn]},mr president, If you are ready you can kill a person if you kill the hitler liberals will win ',
-                          style: TextStyle(fontSize: 15),
-                          textAlign: TextAlign.center,
-                        )
+                        //"${widget.name[turn]}, Mr. President, when you're prepared, you have the option to eliminate a person. Removing Hitler would lead to a Liberal victory."
+                        // child:Text(
+                        //   '${widget.name[turn]},mr president, If you are ready you can kill a person if you kill the hitler liberals will win ',
+                        //   style: TextStyle(fontSize: 15),
+                        //   textAlign: TextAlign.center,
+                        // )
+                        //"${widget.name[turn]}, as the President, when you're ready, you have the option to eliminate a person. Removing Hitler would lead to a victory for the Liberals."
+                        child:RichText(
+                          textAlign:TextAlign.center,
+                          text: TextSpan(
+                            style:TextStyle(color:Colors.black),
+                            children: <TextSpan>[
+                              TextSpan(text: '${widget.name[turn]}, as the President,', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                              TextSpan(text: " when you're ready, you have the option to eliminate a person. Removing Hitler would lead to a victory for the Liberals.\n"),
+                              if(state=='kill_veto') TextSpan(text: "When both the President and Chancellor, both loyal to the Liberals, concur, the Veto option becomes viable."),
+                            ],
+                          ),
+                        ),
                     ),
                     Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -694,7 +806,7 @@ class _Game extends State<Game> {
                           Padding(
                               padding: EdgeInsets.all(8.0),
                               child:Text(
-                                  'who will killed:',
+                                  'Eliminated: ',
                                   style: TextStyle(fontSize: 30)
                               )),
                           DropdownButton<String>(
@@ -715,10 +827,18 @@ class _Game extends State<Game> {
                               );
                             }).toList(),
                           ),
-                          TextButton(
+                          
+                        ]
+                    ),
+                    TextButton(
+                      
                             child: Container(
+                                height: 40,
+                                width: 90,
                                 color:Colors.blue,
-                                child:Text('Kill!',style:TextStyle(color:Colors.white))
+                                child:Center(
+                                    child:Text("Eliminate",style:TextStyle(color:Colors.white), textAlign: TextAlign.center,)
+                                )
                             ),
                             onPressed: () {
                               if(first_starter+round/number_players>=1){
@@ -741,18 +861,29 @@ class _Game extends State<Game> {
                               setState(() {});
                             },
                           )
-                        ]
-                    )
                   ]
                   )+
                   (state!='Search'?<Widget>[]:<Widget>[
                     Padding(
                         padding: EdgeInsets.all(8.0),
-                        child:Text(
-                          '${widget.name[turn]},mr president, You can search role of a person that know it is fashist of liberal ',
-                          style: TextStyle(fontSize: 15),
+                        //"${widget.name[turn]}, as the President, you have the power to investigate the role of a person, whether they be a Fascist or a Liberal."
+                        // child:Text(
+
+                        //   '${widget.name[turn]},mr president, You can search role of a person that know it is fashist of liberal ',
+                        //   style: TextStyle(fontSize: 15),
+                        //   textAlign: TextAlign.center,
+                        // )
+                        child:RichText(
                           textAlign: TextAlign.center,
-                        )
+                          text: TextSpan(
+                            style:TextStyle(color:Colors.black,fontSize: 20),
+                            children: <TextSpan>[
+                              TextSpan(text: '${widget.name[turn]}, as the President,', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
+                              TextSpan(text: ' you have the power to investigate the role of a person, whether they be a Fascist or a Liberal.'),
+                            
+                            ],
+                          ),
+                        ),
                     ),
                     Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -760,7 +891,7 @@ class _Game extends State<Game> {
                           Padding(
                               padding: EdgeInsets.all(8.0),
                               child:Text(
-                                  'whose side:',
+                                  'Role Revealed:',
                                   style: TextStyle(fontSize: 30)
                               )),
                           DropdownButton<String>(
@@ -781,10 +912,19 @@ class _Game extends State<Game> {
                               );
                             }).toList(),
                           ),
-                          TextButton(
+                          
+                        ]
+                        
+                    ),
+                    TextButton(
+                      
                             child: Container(
+                                height: 40,
+                                width: 90,
                                 color:Colors.blue,
-                                child:Text('Search!',style:TextStyle(color:Colors.white))
+                                child:Center(
+                                    child:Text("Search!",style:TextStyle(color:Colors.white), textAlign: TextAlign.center,)
+                                )
                             ),
                             onPressed: () {
                               showRoleDialog(context,will_Search);
@@ -796,18 +936,26 @@ class _Game extends State<Game> {
                               setState(() {});
                             },
                           )
-                        ]
-                    )
                   ]
                   )+
                   (state!='next-persident'?<Widget>[]:<Widget>[
                     Padding(
                         padding: EdgeInsets.all(8.0),
-                        child:Text(
-                          '${widget.name[turn]},mr president, You choose next president!',
-                          style: TextStyle(fontSize: 15),
-                          textAlign: TextAlign.center,
-                        )
+                        //"${widget.name[turn]}, as the President, you have the honor of selecting the next president!"
+                        // child:Text(
+                        //   '${widget.name[turn]},mr president, You choose next president!',
+                        //   style: TextStyle(fontSize: 15),
+                        //   textAlign: TextAlign.center,
+                        // )
+                        child:RichText(
+                          text: TextSpan(
+                            style:TextStyle(color:Colors.black, fontSize: 20),
+                            children: <TextSpan>[
+                              TextSpan(text: '${widget.name[turn]}, as the President,', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
+                              TextSpan(text: 'you have the honor of selecting the next president!'),
+                            ],
+                          ),
+                        ),
                     ),
                     Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -815,7 +963,7 @@ class _Game extends State<Game> {
                           Padding(
                               padding: EdgeInsets.all(8.0),
                               child:Text(
-                                  'It will be next president:',
+                                  'Next President: ',
                                   style: TextStyle(fontSize: 20)
                               )),
                           DropdownButton<String>(
@@ -836,10 +984,17 @@ class _Game extends State<Game> {
                               );
                             }).toList(),
                           ),
-                          TextButton(
+                          
+                        ]
+                    ),
+                    TextButton(
                             child: Container(
+                                height: 40,
+                                width: 90,
                                 color:Colors.blue,
-                                child:Text('Go!',style:TextStyle(color:Colors.white))
+                                child:Center(
+                                    child:Text("Appoint!",style:TextStyle(color:Colors.white), textAlign: TextAlign.center,)
+                                )
                             ),
                             onPressed: () {
                               // showRoleDialog(context,will_Search);
@@ -855,8 +1010,6 @@ class _Game extends State<Game> {
                               setState(() {});
                             },
                           )
-                        ]
-                    )
                   ]
                   )
             ,
