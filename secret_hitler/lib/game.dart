@@ -11,7 +11,8 @@ class Game_state {
   List<String> fash_board=[];
   List<String> lib_board=[];
   bool top_tree_seen=false;
-  
+  bool chaos = false;
+  bool is_hitler_alive=true;
   List<String> names=[];//
   List<String> roles=[];//
   List<String> dec=[];//
@@ -28,6 +29,14 @@ class Game_state {
   int president_selected=-1;
   int chancellor_selected=-1;
   String log='';
+  bool hitler_state=false;
+  bool hitler_chancellor=false;
+
+  String will_Search='';
+  String will_president='';
+
+  bool special = false;
+  int old_round=-1;
 
   
   Game_state({required this.names,required this.roles});
@@ -35,7 +44,7 @@ class Game_state {
   void update_chancellor_list(){
     chancellor_list=[];
     for (int i = 0; i < names.length; i++) {
-      if (i==turn || names[i]==last_chancellor || names[i]==last_president){
+      if (i==turn || !chaos &&(names[i]==last_chancellor || (number_players_at_start>5 && names[i]==last_president))){
         continue;
       }
       chancellor_list.add(names[i]);
@@ -69,15 +78,43 @@ class Game_state {
 
   }
 
+  void end_game(){
+    if(lib_board.length==5 || !is_hitler_alive){
+      state='lib win';
+
+    }
+    if(fash_board.length==6 || hitler_chancellor ) {
+      state = 'fash win';
+    }
+  }
+  //List<String> candidate_list=[...game_state.names];
+  List<String> candidate_list(){
+    List<String> candidate_list=[... names];
+    candidate_list.removeAt(turn);
+
+
+    return candidate_list;
+  }
+
+
   void next_round(){
-    round=round=1;
+    end_game();
+    round=round+1;
     turn=(first_starter+round)%number_players;
+    if(special ){
+      turn=names.indexOf(will_president);
+    }
+    special=false;
     if(dec.length<=2){
         dec=dec+dis_dec;
         dec=dec..shuffle();
         dis_dec=[];
       }
     update_chancellor_list();
+    chaos=false;
+    if(fash_board.length>2){
+      hitler_state=true;
+    }
   }
   
   @override
@@ -94,6 +131,8 @@ class Game_state {
     governments:${governments}
     selected_chancellor:${selected_chancellor}
     chancellor_list:${chancellor_list}
+    will_Search:${will_Search}
+    candidate_list:${candidate_list()}
     ''';
   }
 }
@@ -111,18 +150,19 @@ class Game extends StatefulWidget {
 class _Game extends State<Game> {
   late Game_state game_state;
   int round = 0;
-  int first_starter = 0;
+
+  // int first_starter = 0;
   int number_players = 0;
   int number_players_at_start = 0;
   List<String> dec=[];
   List<String> dis_dec=[];
   String chancellor='';
   String will_killed='';
-  String will_Search='';
-  String will_president='';
+  // String will_Search='';
+  // String will_president='';
   bool first_selected=false;
   String state='base';// elected
-  int number_rejected=0;
+  // int number_rejected=0;
   Map<int,dynamic> board_fash={
     5:['blank','blank','top-three','kill','kill_veto','fash'],
     6:['blank','blank','top-three','kill','kill_veto','fash'],
@@ -133,20 +173,22 @@ class _Game extends State<Game> {
   };
   List<String> board_lib=['blank','blank','blank','blank','lib','lib'];
   // int president_selected=-1;
-  int chancellor_selected=-1;
-  List<String> fash_board=[];
-  List<String> lib_board=[];
-  bool top_tree_seen=false;
-  bool is_hitler_alive=true;
-  bool hitler_state=false;
-  bool hitler_chancellor=false;
-  bool special = false;
+  // int chancellor_selected=-1;
+  // List<String> fash_board=[];
+  // List<String> lib_board=[];
+
+
+  // bool top_tree_seen=false;
+  // bool is_hitler_alive=true;
+  // bool hitler_state=false;
+  // bool hitler_chancellor=false;
+  // bool special = false;
   bool hide = false;
   bool veto = false;
   bool posible_veto = false;
-  int old_round=-1;
-  String last_chancellor='';
-  String last_president='';
+  // int old_round=-1;
+  // String last_chancellor='';
+  // String last_president='';
 
   // bool last_done=true;
 
@@ -155,21 +197,7 @@ class _Game extends State<Game> {
   initState() {
     game_state = Game_state(names: widget.name, roles: widget.roles);
     game_state.set_up();
-    // print(game_state);
 
-    // number_players_at_start= widget.name.length;
-    // number_players = widget.name.length;
-    // dec=[];
-    // for (int i = 0; i < 6; i++) {
-    //   dec.add('lib');
-    // }
-    // for (int i = 0; i < 11; i++) {
-    //   dec.add('fash');
-    // }
-    // dec=dec..shuffle();
-    // var rng = Random();
-    // first_starter=rng.nextInt(number_players_at_start);
-    // print("first_starter:${first_starter}");
     setState(() {});
   }
 
@@ -254,9 +282,11 @@ class _Game extends State<Game> {
                               }
                               game_state.state='elected';
                               game_state.president_selected=-1;
-                              if(widget.roles[game_state.names.indexOf(name)]=='Hitler'&& hitler_state){
-                                hitler_chancellor=true;
+                              if(widget.roles[game_state.names.indexOf(name)]=='Hitler'&& game_state.hitler_state){
+                                game_state.hitler_chancellor=true;
+
                               }
+                              game_state.number_rejected=0;
                               Navigator.of(context).pop();
                               setState(() { });
 
@@ -268,8 +298,9 @@ class _Game extends State<Game> {
 
                               // round=round+1;
                               // first_selected=false;
-                              game_state.number_rejected=game_state.number_rejected+1;
+                              game_state.number_rejected+=1;
                               if(game_state.number_rejected==3){
+                                game_state.chaos=true;
                                 game_state.number_rejected=0;
                                 if(game_state.dec[0]=='fash'){
                                   game_state.fash_board.add('Done');
@@ -309,6 +340,7 @@ class _Game extends State<Game> {
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
+    game_state.end_game();
     print(game_state);
     // print(game_state.names);
     // print(first_starter);
@@ -319,13 +351,11 @@ class _Game extends State<Game> {
     // print('last_president : ${last_president}');
     // print('last_chancellor : ${last_chancellor}');
 
-    if(fash_board.length>2){
-      hitler_state=true;
-    }
+
 
  
-    List<String> candidate_list=[...game_state.names];
-    List<String> president_list=[...game_state.names];
+    // List<String> candidate_list=[...game_state.names];
+    // List<String> president_list=[...game_state.names];
 
 
     List<TableCell> fac_table = [];
@@ -419,7 +449,7 @@ class _Game extends State<Game> {
                 ),
 
 
-                if ((hitler_state&& (state!='lib win' && state!='fash win'))) ...<Widget>[
+                if ((game_state.hitler_state&& (state!='lib win' && state!='fash win'))) ...<Widget>[
                   Padding(
                         padding: EdgeInsets.all(8.0),
                         child:Text(
@@ -472,7 +502,7 @@ class _Game extends State<Game> {
                           child: Container(
 
                             decoration: BoxDecoration(
-                              color:entry.key==number_rejected?Colors.blueAccent:Colors.white,
+                              color:entry.key==game_state.number_rejected?Colors.blueAccent:Colors.white,
                               border: Border.all(width: 5.0,color: entry.key==3?Colors.red:Colors.blueAccent,),
                               shape: BoxShape.circle,
                             ),
@@ -507,7 +537,7 @@ class _Game extends State<Game> {
                         style:TextStyle(color:Colors.black,fontSize: 20),
                         children: <TextSpan>[
                           TextSpan(text: 'Round '),
-                          TextSpan(text: '${game_state.round+1}', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
+                          TextSpan(text: '${game_state.round}', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
                           TextSpan(text: ' has begun.\n'),
                           TextSpan(text: '${game_state.names[game_state.turn]},',style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28)),
                           TextSpan(text: ' select your Chancellor for the upcoming election.'),
@@ -695,10 +725,17 @@ class _Game extends State<Game> {
                           if(board_fash[game_state.number_players_at_start][game_state.fash_board.length-1]!='blank'){
                             print('it is ${board_fash[game_state.number_players_at_start][game_state.fash_board.length-1]} state');
                             game_state.state=board_fash[game_state.number_players_at_start][game_state.fash_board.length-1];
-                            if (state=='kill_veto'){
+                            if (game_state.state=='kill_veto'){
                               game_state.state='kill';
                               veto=true;
                             }
+                            if (game_state.state=='Search'){
+                              game_state.will_Search=game_state.candidate_list()[0];
+                            }
+                            if (game_state.state=='next-persident'){
+                              game_state.will_president=game_state.candidate_list()[0];
+                            }
+
                           }
                           else {
                             game_state.state = 'base';
@@ -715,11 +752,12 @@ class _Game extends State<Game> {
 
                         game_state.dec.removeAt(game_state.chancellor_selected);
                         game_state.dis_dec.add(game_state.dec.removeAt(0));
-                        // if(game_state.dec.length==2){
-                        //   dec=game_state.dec+dis_dec;
-                        //   dec=dec..shuffle();
-                        //   dis_dec=[];
-                        // }
+
+                        if(game_state.dec.length==2){
+                          game_state.dec=game_state.dec+game_state.dis_dec;
+                          game_state.dec=game_state.dec..shuffle();
+                          game_state.dis_dec=[];
+                        }
                         
                         setState(() {});
                       },
@@ -878,7 +916,7 @@ class _Game extends State<Game> {
                                 will_killed = value!;
                               });
                             },
-                            items:candidate_list.map<DropdownMenuItem<String>>((String value) {
+                            items:game_state.candidate_list().map<DropdownMenuItem<String>>((String value) {
                               return DropdownMenuItem<String>(
                                 value: value,
                                 child: Text(value),
@@ -899,13 +937,13 @@ class _Game extends State<Game> {
                                 )
                             ),
                             onPressed: () {
-                              if(first_starter+round/number_players>=1){
-                                first_starter=((first_starter+round)%number_players)-round;
+                              if(game_state.first_starter+round/number_players>=1){
+                                game_state.first_starter=((game_state.first_starter+round)%number_players)-round;
 
                               }
                               var index=game_state.names.indexOf(will_killed);
                               if(widget.roles[index]=='Hitler'){
-                                is_hitler_alive=false;
+                                game_state.is_hitler_alive=false;
                               }
                               game_state.names.removeAt(index);
                               widget.roles.removeAt(index);
@@ -921,7 +959,7 @@ class _Game extends State<Game> {
                           )
                   ]
                   )+
-                  (state!='Search'?<Widget>[]:<Widget>[
+                  (game_state.state!='Search'?<Widget>[]:<Widget>[
                     Padding(
                         padding: EdgeInsets.all(8.0),
                         //"${game_state.names[turn]}, as the President, you have the power to investigate the role of a person, whether they be a Fascist or a Liberal."
@@ -953,17 +991,17 @@ class _Game extends State<Game> {
                                   style: TextStyle(fontSize: 30)
                               )),
                           DropdownButton<String>(
-                            value: will_Search,
+                            value: game_state.will_Search,
 
                             onChanged: (String? value) {
                               first_selected=true;
                               print('$value');
                               // This is called when the user selects an item.
                               setState(() {
-                                will_Search = value!;
+                                game_state.will_Search = value!;
                               });
                             },
-                            items:candidate_list.map<DropdownMenuItem<String>>((String value) {
+                            items:(game_state.candidate_list()).map<DropdownMenuItem<String>>((String value) {
                               return DropdownMenuItem<String>(
                                 value: value,
                                 child: Text(value),
@@ -985,10 +1023,10 @@ class _Game extends State<Game> {
                                 )
                             ),
                             onPressed: () {
-                              showRoleDialog(context,will_Search);
-                              state='base';
+                              showRoleDialog(context,game_state.will_Search);
+                              game_state.state='base';
 
-                              round=round+1;
+                              game_state.next_round();
 
                               first_selected=false;
                               setState(() {});
@@ -1025,17 +1063,17 @@ class _Game extends State<Game> {
                                   style: TextStyle(fontSize: 20)
                               )),
                           DropdownButton<String>(
-                            value: will_president,
+                            value: game_state.will_president,
 
                             onChanged: (String? value) {
                               first_selected=true;
                               print('$value');
                               // This is called when the user selects an item.
                               setState(() {
-                                will_president = value!;
+                                game_state.will_president = value!;
                               });
                             },
-                            items:president_list.map<DropdownMenuItem<String>>((String value) {
+                            items:game_state.candidate_list().map<DropdownMenuItem<String>>((String value) {
                               return DropdownMenuItem<String>(
                                 value: value,
                                 child: Text(value),
@@ -1056,14 +1094,15 @@ class _Game extends State<Game> {
                             ),
                             onPressed: () {
                               // showRoleDialog(context,will_Search);
-                              special=true;
-                              state='base';
+                              game_state.special=true;
+                              game_state.state='base';
                               //
 
-                              round=round+1;
-                              old_round=round;
+
+                              game_state.old_round=game_state.round;
                               //
-                              first_starter=first_starter-1;
+                              game_state.first_starter=game_state.first_starter-1;
+                              game_state.next_round();
                               first_selected=false;
                               setState(() {});
                             },
