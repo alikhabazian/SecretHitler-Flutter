@@ -34,9 +34,14 @@ class Game_state {
 
   String will_Search='';
   String will_president='';
+  String will_killed='';
+
 
   bool special = false;
   int old_round=-1;
+
+  bool veto = false;
+  bool posible_veto = false;
 
   
   Game_state({required this.names,required this.roles});
@@ -116,12 +121,26 @@ class Game_state {
       hitler_state=true;
     }
   }
+
+  void do_veto(){
+    dis_dec.add(dec.removeAt(0));
+    dis_dec.add(dec.removeAt(0));
+    if(dec.length==2){
+      dec=dec+dis_dec;
+      dec=dec..shuffle();
+      dis_dec=[];
+    }
+    posible_veto=false;
+    state='base';
+
+  }
   
   @override
   String toString() {
     return '''
     Game_state:
     round:${round}
+    first_starter:${first_starter}
     number_players:${number_players}
     dec:${dec}
     dis_dec:${dis_dec}
@@ -157,7 +176,7 @@ class _Game extends State<Game> {
   List<String> dec=[];
   List<String> dis_dec=[];
   String chancellor='';
-  String will_killed='';
+  // String will_killed='';
   // String will_Search='';
   // String will_president='';
   bool first_selected=false;
@@ -184,8 +203,8 @@ class _Game extends State<Game> {
   // bool hitler_chancellor=false;
   // bool special = false;
   bool hide = false;
-  bool veto = false;
-  bool posible_veto = false;
+  // bool veto = false;
+  // bool posible_veto = false;
   // int old_round=-1;
   // String last_chancellor='';
   // String last_president='';
@@ -277,8 +296,8 @@ class _Game extends State<Game> {
                             child: Text('Yes'),
                             onPressed: () {
                               first_selected=true;
-                              if(veto && widget.roles[game_state.names.indexOf(name)]=='Liberal' && widget.roles[turn]=='Liberal'){
-                                posible_veto=true;
+                              if(game_state.veto && widget.roles[game_state.names.indexOf(name)]=='Liberal' && widget.roles[turn]=='Liberal'){
+                                game_state.posible_veto=true;
                               }
                               game_state.state='elected';
                               game_state.president_selected=-1;
@@ -460,7 +479,7 @@ class _Game extends State<Game> {
                   )
                 ],
 
-                if (!(state!='lib win' && state!='fash win')) Text(
+                if (!(game_state.state!='lib win' && game_state.state!='fash win')) Text(
                     (state=='lib win')? "Liberals Win the Game" : "Fascists Win the Game",
                     style: TextStyle(fontSize: 30),
                     textAlign: TextAlign.center,
@@ -727,13 +746,16 @@ class _Game extends State<Game> {
                             game_state.state=board_fash[game_state.number_players_at_start][game_state.fash_board.length-1];
                             if (game_state.state=='kill_veto'){
                               game_state.state='kill';
-                              veto=true;
+                              game_state.veto=true;
                             }
                             if (game_state.state=='Search'){
                               game_state.will_Search=game_state.candidate_list()[0];
                             }
                             if (game_state.state=='next-persident'){
                               game_state.will_president=game_state.candidate_list()[0];
+                            }
+                            if (game_state.state=='kill'){
+                              game_state.will_killed=game_state.candidate_list()[0];
                             }
 
                           }
@@ -778,7 +800,7 @@ class _Game extends State<Game> {
                     )
                     
                     ] +
-                          (!posible_veto?<Widget>[]:<Widget>[
+                          (!game_state.posible_veto?<Widget>[]:<Widget>[
                             TextButton(
                               child: Container(
                                   height: 40,
@@ -789,17 +811,19 @@ class _Game extends State<Game> {
                                   )
                               ),
                               onPressed: () {
-                                dis_dec.add(dec.removeAt(0));
-                                dis_dec.add(dec.removeAt(0));
-                                if(dec.length==2){
-                                  dec=dec+dis_dec;
-                                  dec=dec..shuffle();
-                                  dis_dec=[];
-                                }
-                                posible_veto=false;
-                                state='base';
-                                round=round+1;
-                                first_selected=false;
+                                // dis_dec.add(dec.removeAt(0));
+                                // dis_dec.add(dec.removeAt(0));
+                                // if(dec.length==2){
+                                //   dec=dec+dis_dec;
+                                //   dec=dec..shuffle();
+                                //   dis_dec=[];
+                                // }
+                                // game_state.posible_veto=false;
+                                // state='base';
+                                // round=round+1;
+                                game_state.do_veto();
+                                game_state.next_round();
+                                // first_selected=false;
                                 setState((){});
                               },
                             )
@@ -891,7 +915,7 @@ class _Game extends State<Game> {
                             children: <TextSpan>[
                               TextSpan(text: '${game_state.names[game_state.turn]}, as the President,', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
                               TextSpan(text: " when you're ready, you have the option to eliminate a person. Removing Hitler would lead to a victory for the Liberals.\n"),
-                              if(state=='kill_veto') TextSpan(text: "When both the President and Chancellor, both loyal to the Liberals, concur, the Veto option becomes viable."),
+                              if(game_state.state=='kill_veto') TextSpan(text: "When both the President and Chancellor, both loyal to the Liberals, concur, the Veto option becomes viable."),
                             ],
                           ),
                         ),
@@ -906,14 +930,14 @@ class _Game extends State<Game> {
                                   style: TextStyle(fontSize: 30)
                               )),
                           DropdownButton<String>(
-                            value: will_killed,
+                            value: game_state.will_killed,
 
                             onChanged: (String? value) {
                               first_selected=true;
                               print('$value');
                               // This is called when the user selects an item.
                               setState(() {
-                                will_killed = value!;
+                                game_state.will_killed = value!;
                               });
                             },
                             items:game_state.candidate_list().map<DropdownMenuItem<String>>((String value) {
@@ -937,21 +961,23 @@ class _Game extends State<Game> {
                                 )
                             ),
                             onPressed: () {
-                              if(game_state.first_starter+round/number_players>=1){
-                                game_state.first_starter=((game_state.first_starter+round)%number_players)-round;
+                              if(game_state.first_starter+round/game_state.number_players>=1){
+                                game_state.first_starter=((game_state.first_starter+round)%game_state.number_players)-game_state.round;
 
                               }
-                              var index=game_state.names.indexOf(will_killed);
-                              if(widget.roles[index]=='Hitler'){
+                              var index=game_state.names.indexOf(game_state.will_killed);
+                              if(game_state.roles[index]=='Hitler'){
                                 game_state.is_hitler_alive=false;
                               }
                               game_state.names.removeAt(index);
-                              widget.roles.removeAt(index);
-                              number_players = game_state.names.length;
+                              game_state.roles.removeAt(index);
+                              game_state.number_players = game_state.names.length;
                               first_selected=false;
-                              state='base';
+                              game_state.state='base';
+                              game_state.first_starter-=1;
+                              game_state.next_round();
 
-                              round=round+1;
+                              // round=round+1;
 
 
                               setState(() {});
