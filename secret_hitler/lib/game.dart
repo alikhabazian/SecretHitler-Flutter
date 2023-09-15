@@ -36,23 +36,23 @@ class _Game extends State<Game> {
           rool='Fascist';
         }
         return AlertDialog(
-          title: Text('Message'),
+          title: const Text('Message'),
           // content: Text("You investigated ${name}, and their role is ${role}."),
           content:RichText(
                       text: TextSpan(
-                        style:TextStyle(color:Colors.black),
+                        style:const TextStyle(color:Colors.black),
                         children: <TextSpan>[
-                          TextSpan(text: 'You investigated '),
-                          TextSpan(text: '${name}', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-                          TextSpan(text: ' and their role is '),
-                          TextSpan(text: '${rool}.', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                          const TextSpan(text: 'You investigated '),
+                          TextSpan(text: name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                          const TextSpan(text: ' and their role is '),
+                          TextSpan(text: '$rool.', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
 
                         ],
                       ),
                     ),
           actions: <Widget>[
             TextButton(
-              child: Text('OK'),
+              child: const Text('OK'),
               onPressed: () {
 
                 Navigator.of(context).pop();
@@ -69,22 +69,22 @@ class _Game extends State<Game> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Confirmation'),
+          title: const Text('Confirmation'),
           //"Please confirm your selection of ${name} as Chancellor."
           // content: Text('Are you sure you select ${name} as chancellor'),
           content:RichText(
                       text: TextSpan(
-                        style:TextStyle(color:Colors.black),
+                        style:const TextStyle(color:Colors.black),
                         children: <TextSpan>[
-                          TextSpan(text: 'Please confirm your selection of '),
-                          TextSpan(text: '${name}', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-                          TextSpan(text: ' as Chancellor.'),
+                          const TextSpan(text: 'Please confirm your selection of '),
+                          TextSpan(text: name, style:const  TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                          const TextSpan(text: ' as Chancellor.'),
                         ],
                       ),
                     ),
           actions: <Widget>[
             TextButton(
-              child: Text('Yes'),
+              child: const Text('Yes'),
               onPressed: () {
 
                 Navigator.of(context).pop();
@@ -92,11 +92,11 @@ class _Game extends State<Game> {
                     context: context,
                     builder: (BuildContext context) {
                       return AlertDialog(
-                        title: Text('Election'),
-                        content: Text("Has the election for the government concluded?"),
+                        title: const Text('Election'),
+                        content: const Text("Has the election for the government concluded?"),
                         actions: <Widget>[
                           TextButton(
-                            child: Text('Yes'),
+                            child: const Text('Yes'),
                             onPressed: () {
                               // first_selected=true;
                               if(game_state.veto && widget.roles[game_state.names.indexOf(name)]=='Liberal' && widget.roles[turn]=='Liberal'){
@@ -115,7 +115,7 @@ class _Game extends State<Game> {
                             },
                           ),
                           TextButton(
-                            child: Text('No'),
+                            child: const Text('No'),
                             onPressed: () {
 
                               // round=round+1;
@@ -777,10 +777,9 @@ class _Game extends State<Game> {
     List <Widget>  uiState = get_ui_state(width,height);
 
 
-
     return Scaffold(
       appBar: AppBar(
-        title: Text('Game'),
+        title: const Text('Game'),
       ),
       body:
       SingleChildScrollView(
@@ -788,18 +787,18 @@ class _Game extends State<Game> {
           child:Column(
             mainAxisAlignment: MainAxisAlignment.center,
               children:<Widget>[
-                SizedBox(height: 8.0),
+                const SizedBox(height: 8.0),
                 RichText(
                   text: TextSpan(
-                    style:TextStyle(color:Colors.black,fontSize: 18),
+                    style:const TextStyle(color:Colors.black,fontSize: 18),
                     children: <TextSpan>[
                       if (game_state.last_president!='')... [
                         const TextSpan(text: 'Last president: '),
-                      TextSpan(text: '${game_state.last_president}\n', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                      TextSpan(text: '${game_state.last_president}\n', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
                       ],
                       if (game_state.last_chancellor!='')... [
                         const TextSpan(text: 'Last chancellor: '),
-                      TextSpan(text: '${game_state.last_chancellor}\n', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                      TextSpan(text: '${game_state.last_chancellor}\n', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
           
                       ]
                     ],
@@ -808,7 +807,7 @@ class _Game extends State<Game> {
 
 
                 if ((game_state.hitler_state&& (game_state.state!='lib win' && game_state.state!='fash win'))) ...<Widget>[
-                  Padding(
+                  const Padding(
                         padding: EdgeInsets.all(8.0),
                         child:Text(
                   "We stand at a precipice of danger; should Hitler ascend as Chancellor, the forces of fascism shall claim victory.",
@@ -818,7 +817,8 @@ class _Game extends State<Game> {
                   )
                 ],
 
-                if (!(game_state.state!='lib win' && game_state.state!='fash win')) Text(
+                if (!(game_state.state!='lib win' && game_state.state!='fash win'))
+                  Text(
                     (game_state.state=='lib win')? "Liberals Win the Game" : "Fascists Win the Game",
                     style: const TextStyle(fontSize: 30),
                     textAlign: TextAlign.center,
@@ -854,7 +854,7 @@ class _Game extends State<Game> {
                   children:
                   [0,1,2,3].asMap().entries.map((entry)=>
                   Padding(
-                      padding: EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.all(8.0),
                       child:ClipOval(
                         child: Material(
                           child: Container(
@@ -864,7 +864,7 @@ class _Game extends State<Game> {
                               border: Border.all(width: 5.0,color: entry.key==3?Colors.red:Colors.blueAccent,),
                               shape: BoxShape.circle,
                             ),
-                            child: Text(
+                            child:const Text(
                               '',
                               style: TextStyle(fontSize: 20),
                               textAlign: TextAlign.center,
