@@ -1,160 +1,5 @@
 import 'package:flutter/material.dart';
-import 'dart:math';
-
-
-class Game_state {
-
-  int number_players=0;//
-  int number_players_at_start=0;//
-  int round=0;//
-  int first_starter=0;
-  List<String> fash_board=[];
-  List<String> lib_board=[];
-  bool top_tree_seen=false;
-  bool chaos = false;
-  bool is_hitler_alive=true;
-  List<String> names=[];//
-  List<String> roles=[];//
-  List<String> dec=[];//
-  List<String> dis_dec=[];//
-  String chancellor='';
-  String state='';//
-  int number_rejected=0;
-  String last_chancellor='';
-  String last_president='';
-  int turn=0;
-  List<List<String>> governments=[];
-  List<String> chancellor_list=[];
-  String selected_chancellor='';
-  int president_selected=-1;
-  int chancellor_selected=-1;
-  String log='';
-  bool hitler_state=false;
-  bool hitler_chancellor=false;
-
-  String will_Search='';
-  String will_president='';
-  String will_killed='';
-
-
-  bool special = false;
-  int old_round=-1;
-
-  bool veto = false;
-  bool posible_veto = false;
-
-  
-  Game_state({required this.names,required this.roles});
-
-  void update_chancellor_list(){
-    chancellor_list=[];
-    for (int i = 0; i < names.length; i++) {
-      if (i==turn || !chaos &&(names[i]==last_chancellor || (number_players_at_start>5 && names[i]==last_president))){
-        continue;
-      }
-      chancellor_list.add(names[i]);
-      
-    }
-    selected_chancellor=chancellor_list[0];
-    
-
-  }
-
-  void set_up(){
-    round=1;
-    
-    number_players_at_start= names.length;
-    number_players=number_players_at_start;
-    dec=[];
-    for (int i = 0; i < 6; i++) {
-      dec.add('lib');
-    }
-    for (int i = 0; i < 11; i++) {
-      dec.add('fash');
-    }
-    dec=dec..shuffle();
-    dis_dec=[];
-    state='base';
-    number_rejected=0;
-    var rng = Random();
-    first_starter=rng.nextInt(number_players);
-    turn=(first_starter+round)%number_players;
-    update_chancellor_list();
-
-  }
-
-  void end_game(){
-    if(lib_board.length==5 || !is_hitler_alive){
-      state='lib win';
-
-    }
-    if(fash_board.length==6 || hitler_chancellor ) {
-      state = 'fash win';
-    }
-  }
-  //List<String> candidate_list=[...game_state.names];
-  List<String> candidate_list(){
-    List<String> candidate_list=[... names];
-    candidate_list.removeAt(turn);
-
-
-    return candidate_list;
-  }
-
-
-  void next_round(){
-    end_game();
-    round=round+1;
-    turn=(first_starter+round)%number_players;
-    if(special ){
-      turn=names.indexOf(will_president);
-    }
-    special=false;
-    if(dec.length<=2){
-        dec=dec+dis_dec;
-        dec=dec..shuffle();
-        dis_dec=[];
-      }
-    update_chancellor_list();
-    chaos=false;
-    if(fash_board.length>2){
-      hitler_state=true;
-    }
-  }
-
-  void do_veto(){
-    dis_dec.add(dec.removeAt(0));
-    dis_dec.add(dec.removeAt(0));
-    if(dec.length==2){
-      dec=dec+dis_dec;
-      dec=dec..shuffle();
-      dis_dec=[];
-    }
-    posible_veto=false;
-    state='base';
-
-  }
-  
-  @override
-  String toString() {
-    return '''
-    Game_state:
-    round:${round}
-    first_starter:${first_starter}
-    number_players:${number_players}
-    dec:${dec}
-    dis_dec:${dis_dec}
-    number_rejected:${number_rejected}
-    state:${state}
-    turn:${turn}
-    governments:${governments}
-    selected_chancellor:${selected_chancellor}
-    chancellor_list:${chancellor_list}
-    will_Search:${will_Search}
-    candidate_list:${candidate_list()}
-    ''';
-  }
-}
+import 'package:secret_hitler/Game_state.dart';
 
 
 class Game extends StatefulWidget {
@@ -168,49 +13,7 @@ class Game extends StatefulWidget {
 }
 class _Game extends State<Game> {
   late Game_state game_state;
-  int round = 0;
-
-  // int first_starter = 0;
-  int number_players = 0;
-  int number_players_at_start = 0;
-  List<String> dec=[];
-  List<String> dis_dec=[];
-  String chancellor='';
-  // String will_killed='';
-  // String will_Search='';
-  // String will_president='';
-  bool first_selected=false;
-  String state='base';// elected
-  // int number_rejected=0;
-  Map<int,dynamic> board_fash={
-    5:['blank','blank','top-three','kill','kill_veto','fash'],
-    6:['blank','blank','top-three','kill','kill_veto','fash'],
-    7:['blank','Search','next-persident','kill','kill_veto','fash'],
-    8:['blank','Search','next-persident','kill','kill_veto','fash'],
-    9:['Search','Search','next-persident','kill','kill_veto','fash'],
-    10:['Search','Search','next-persident','kill','kill_veto','fash'],
-  };
-  List<String> board_lib=['blank','blank','blank','blank','lib','lib'];
-  // int president_selected=-1;
-  // int chancellor_selected=-1;
-  // List<String> fash_board=[];
-  // List<String> lib_board=[];
-
-
-  // bool top_tree_seen=false;
-  // bool is_hitler_alive=true;
-  // bool hitler_state=false;
-  // bool hitler_chancellor=false;
-  // bool special = false;
   bool hide = false;
-  // bool veto = false;
-  // bool posible_veto = false;
-  // int old_round=-1;
-  // String last_chancellor='';
-  // String last_president='';
-
-  // bool last_done=true;
-
 
   @override
   initState() {
@@ -295,7 +98,7 @@ class _Game extends State<Game> {
                           TextButton(
                             child: Text('Yes'),
                             onPressed: () {
-                              first_selected=true;
+                              // first_selected=true;
                               if(game_state.veto && widget.roles[game_state.names.indexOf(name)]=='Liberal' && widget.roles[turn]=='Liberal'){
                                 game_state.posible_veto=true;
                               }
@@ -353,6 +156,610 @@ class _Game extends State<Game> {
   }
 
 
+  List <Widget> get_ui_state(width,height){
+    List <Widget> temp=<Widget>[];
+
+    switch (game_state.state){
+      case 'base':
+        temp+=<Widget>[
+          Padding(
+            padding: EdgeInsets.all(8.0),
+            child:RichText(
+              textAlign: TextAlign.center,
+              text: TextSpan(
+                style:TextStyle(color:Colors.black,fontSize: 20),
+                children: <TextSpan>[
+                  TextSpan(text: 'Round '),
+                  TextSpan(text: '${game_state.round}', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
+                  TextSpan(text: ' has begun.\n'),
+                  TextSpan(text: '${game_state.names[game_state.turn]},',style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28)),
+                  TextSpan(text: ' select your Chancellor for the upcoming election.'),
+                ],
+              ),
+            ),
+          ),
+          Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children:[
+                const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child:Text(
+                        'Your Chancellor: ',
+                        style: TextStyle(fontSize: 30)
+                    )),
+                DropdownButton<String>(
+                  value: game_state.selected_chancellor,
+
+                  onChanged: (String? value) {
+                    // first_selected=true;
+                    print('$value');
+                    // This is called when the user selects an item.
+                    setState(() {
+                      game_state.selected_chancellor = value!;
+                    });
+                  },
+                  items:game_state.chancellor_list.map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                ),
+
+              ]
+          ),
+
+          TextButton(
+            child: Container(
+                height: (height*0.95)/15,
+                width:(width*0.95)/3,
+                color:Colors.blue,
+                child:
+                Center(child:Text('Select!',style:TextStyle(color:Colors.white, fontSize: (width*0.95)/15),textAlign: TextAlign.center))
+            ),
+            onPressed: () {
+              showMessageDialog(context,game_state.selected_chancellor,game_state.turn);
+            },
+          )
+
+        ];
+        break;
+      case 'elected':
+        temp+=<Widget>[
+          Padding(
+            padding: EdgeInsets.all(8.0),
+            child:RichText(
+              textAlign: TextAlign.center,
+              text: TextSpan(
+                style:TextStyle(color:Colors.black,fontSize: 15),
+                children: <TextSpan>[
+                  TextSpan(text: '${game_state.names[game_state.turn]},', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
+                  TextSpan(text: ' in your esteemed role as the'),
+                  TextSpan(text: ' President,',style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                  TextSpan(text: ' please select a policy card to be discarded.'),
+
+
+                ],
+              ),
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children:<Widget>[]+game_state.dec.sublist(0, 3).asMap().entries.map((entry)=>
+                Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: InkWell(
+                      // highlightColor:Colors.black,
+                      //   hoverColor:Colors.yellow,
+                      onTap: () {
+                        print("entry.key: ${entry.key}");
+                        game_state.president_selected=entry.key;
+                        setState(() {});
+                      },
+                      child:Container(
+                        decoration: BoxDecoration(
+                            color :entry.value=='lib'?Colors.blue[400]:Colors.red,
+                            border: game_state.president_selected!=entry.key?null:Border.all(width: 5.0,color: Colors.blueAccent)
+                        ),
+
+                        child:Image(image: AssetImage('assets/'+entry.value+'.png')),
+
+                        height: 155,
+                        width: 85,
+                      ),
+
+                    )
+                )
+            ).toList(),
+          ),
+          TextButton(
+            child: Container(
+                height: 40,
+                width: 80,
+                color:Colors.blue,
+                child:Center(
+                    child:Text('Discard!',style:TextStyle(color:Colors.white), textAlign: TextAlign.center,)
+                )
+            ),
+            onPressed: () {
+              game_state.last_president=game_state.names[game_state.turn];
+              game_state.state='president_discarded';
+              game_state.chancellor_selected=-1;
+              game_state.log=game_state.log+"${game_state.names[game_state.turn]} discard:${game_state.dec[game_state.president_selected]}\n";
+              game_state.dis_dec.add(game_state.dec.removeAt(game_state.president_selected));
+
+              setState(() {});
+            },
+          )
+        ];
+        break;
+      case 'president_discarded':
+        temp+=<Widget>[
+          Padding(
+            padding: EdgeInsets.all(8.0),
+            //"${chancellor}, entrusted as the Chancellor, graciously pick a card to shape our policy."
+            child:RichText(
+              textAlign: TextAlign.center,
+              text: TextSpan(
+                style:TextStyle(color:Colors.black,fontSize: 15),
+                children: <TextSpan>[
+                  TextSpan(text: '${game_state.selected_chancellor},', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
+                  TextSpan(text: ' entrusted as the'),
+                  TextSpan(text: ' Chancellor,', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                  TextSpan(text: ' graciously pick a card to shape our policy.'),
+
+                ],
+              ),
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children:<Widget>[]+(hide?['hide','hide']:game_state.dec.sublist(0, 2)).asMap().entries.map((entry)=>
+                Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: InkWell(
+
+                      onTap: () {
+                        print("entry.key: ${entry.key}");
+                        game_state.chancellor_selected=entry.key;
+                        setState(() {});
+                      },
+                      child:Container(
+                        decoration: BoxDecoration(
+                            color : (entry.value=='hide'?Colors.grey[400]:(entry.value=='lib'?Colors.blue[400]:Colors.red)),
+                            border: game_state.chancellor_selected!=entry.key?null:Border.all(width: 5.0,color: Colors.blueAccent)
+                        ),
+
+                        child:entry.value=='hide'?Center(child:Icon(Icons.question_mark_outlined,size: 70.0,)):Image(image: AssetImage('assets/'+entry.value+'.png')),
+
+                        height: 155,
+                        width: 85,
+                      ),
+
+                    )
+                )
+            ).toList(),
+          ),
+          Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children:<Widget>[
+                if(!hide)TextButton(
+                  child: Container(
+                      height: 40,
+                      width: 80,
+                      color:Colors.blue,
+                      child:Center(
+                          child:Text('Select!',style:TextStyle(color:Colors.white), textAlign: TextAlign.center,)
+                      )
+                  ),
+                  onPressed: () {
+                    // first_selected=false;
+                    game_state.last_chancellor=game_state.selected_chancellor;
+                    game_state.log=game_state.log+"${game_state.selected_chancellor} play:${game_state.dec[game_state.chancellor_selected]}\n";
+                    if(game_state.dec[game_state.chancellor_selected]=='fash'){
+                      game_state.fash_board.add('Done');
+                      if(game_state.board_fash[game_state.number_players_at_start][game_state.fash_board.length-1]!='blank'){
+                        print('it is ${game_state.board_fash[game_state.number_players_at_start][game_state.fash_board.length-1]} state');
+                        game_state.state=game_state.board_fash[game_state.number_players_at_start][game_state.fash_board.length-1];
+                        if (game_state.state=='kill_veto'){
+                          game_state.state='kill';
+                          game_state.veto=true;
+                        }
+                        if (game_state.state=='Search'){
+                          game_state.will_Search=game_state.candidate_list()[0];
+                        }
+                        if (game_state.state=='next-persident'){
+                          game_state.will_president=game_state.candidate_list()[0];
+                        }
+                        if (game_state.state=='kill'){
+                          game_state.will_killed=game_state.candidate_list()[0];
+                        }
+
+                      }
+                      else {
+                        game_state.state = 'base';
+                        game_state.next_round();
+                        // round=round+1;
+                      }
+                    }
+                    else if(game_state.dec[game_state.chancellor_selected]=='lib'){
+                      game_state.lib_board.add('Done');
+                      game_state.state = 'base';
+                      game_state.next_round();
+                      // round=round+1;
+                    }
+
+                    game_state.dec.removeAt(game_state.chancellor_selected);
+                    game_state.dis_dec.add(game_state.dec.removeAt(0));
+
+                    if(game_state.dec.length==2){
+                      game_state.dec=game_state.dec+game_state.dis_dec;
+                      game_state.dec=game_state.dec..shuffle();
+                      game_state.dis_dec=[];
+                    }
+
+                    setState(() {});
+                  },
+                ),
+                TextButton(
+                  child: Container(
+                      height: 40,
+                      width: 80,
+                      color:Colors.blue,
+                      child:Center(
+                          child:Text(hide?'Unhide!':'Hide!',style:TextStyle(color:Colors.white), textAlign: TextAlign.center,)
+                      )
+                  ),
+                  onPressed: () {
+                    hide= !hide;
+                    setState((){});
+                  },
+                )
+
+              ] +
+                  (!game_state.posible_veto?<Widget>[]:<Widget>[
+                    TextButton(
+                      child: Container(
+                          height: 40,
+                          width: 80,
+                          color:Colors.orange,
+                          child:Center(
+                              child:Text("Veto",style:TextStyle(color:Colors.white), textAlign: TextAlign.center,)
+                          )
+                      ),
+                      onPressed: () {
+                        // dis_dec.add(dec.removeAt(0));
+                        // dis_dec.add(dec.removeAt(0));
+                        // if(dec.length==2){
+                        //   dec=dec+dis_dec;
+                        //   dec=dec..shuffle();
+                        //   dis_dec=[];
+                        // }
+                        // game_state.posible_veto=false;
+                        // state='base';
+                        // round=round+1;
+                        game_state.do_veto();
+                        game_state.next_round();
+                        // first_selected=false;
+                        setState((){});
+                      },
+                    )
+
+                  ])
+
+          )
+
+        ];
+        break;
+      case 'top-three':
+        temp+=<Widget>[
+          Padding(
+            padding: EdgeInsets.all(8.0),
+
+            child:RichText(
+              textAlign:TextAlign.center,
+              text: TextSpan(
+                style:TextStyle(color:Colors.black,fontSize: 20),
+                children: <TextSpan>[
+                  TextSpan(text: '${game_state.names[game_state.turn]},', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28)),
+                  TextSpan(text: ' as the '),
+                  TextSpan(text: 'President,',style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
+                  TextSpan(text: ' you may now privately reveal the top three  policy cards.'),
+                ],
+              ),
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children:<Widget>[]+game_state.dec.sublist(0, 3).asMap().entries.map((entry)=>
+                Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: !game_state.top_tree_seen?null:Container(
+                    decoration: BoxDecoration(
+                      color :entry.value=='lib'?Colors.blue[400]:Colors.red,
+                      // border: chancellor_selected!=entry.key?null:Border.all(width: 5.0,color: Colors.blueAccent)
+                    ),
+
+                    child:Image(image: AssetImage('assets/'+entry.value+'.png')),
+
+                    height: 155,
+                    width: 85,
+                  ),
+
+
+                )
+            ).toList(),
+          ),
+          TextButton(
+            child: Container(
+                height: 40,
+                width: 90,
+                color:Colors.blue,
+                child:Center(
+                    child:Text(game_state.top_tree_seen?"I've Seen":'Show cards',style:TextStyle(color:Colors.white), textAlign: TextAlign.center,)
+                )
+            ),
+            onPressed: () {
+              if(!game_state.top_tree_seen) {
+                game_state.top_tree_seen = true;
+              }
+              else{
+                game_state.top_tree_seen = false;
+                game_state.state='base';
+                game_state.next_round();
+                // round=round+1;
+                // first_selected=false;
+
+              }
+              setState(() {});
+            },
+          )
+        ];
+        break;
+      case 'kill':
+      case 'kill_veto':
+        temp+=<Widget>[
+          Padding(
+            padding: EdgeInsets.all(8.0),
+            //"${game_state.names[turn]}, Mr. President, when you're prepared, you have the option to eliminate a person. Removing Hitler would lead to a Liberal victory."
+            // child:Text(
+            //   '${game_state.names[turn]},mr president, If you are ready you can kill a person if you kill the hitler liberals will win ',
+            //   style: TextStyle(fontSize: 15),
+            //   textAlign: TextAlign.center,
+            // )
+            //"${game_state.names[turn]}, as the President, when you're ready, you have the option to eliminate a person. Removing Hitler would lead to a victory for the Liberals."
+            child:RichText(
+              textAlign:TextAlign.center,
+              text: TextSpan(
+                style:TextStyle(color:Colors.black),
+                children: <TextSpan>[
+                  TextSpan(text: '${game_state.names[game_state.turn]}, as the President,', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                  TextSpan(text: " when you're ready, you have the option to eliminate a person. Removing Hitler would lead to a victory for the Liberals.\n"),
+                  if(game_state.state=='kill_veto') TextSpan(text: "When both the President and Chancellor, both loyal to the Liberals, concur, the Veto option becomes viable."),
+                ],
+              ),
+            ),
+          ),
+          Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children:[
+                Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child:Text(
+                        'Eliminated: ',
+                        style: TextStyle(fontSize: 30)
+                    )),
+                DropdownButton<String>(
+                  value: game_state.will_killed,
+
+                  onChanged: (String? value) {
+                    // first_selected=true;
+                    print('$value');
+                    // This is called when the user selects an item.
+                    setState(() {
+                      game_state.will_killed = value!;
+                    });
+                  },
+                  items:game_state.candidate_list().map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                ),
+
+              ]
+          ),
+          TextButton(
+
+            child: Container(
+                height: 40,
+                width: 90,
+                color:Colors.blue,
+                child:Center(
+                    child:Text("Eliminate",style:TextStyle(color:Colors.white), textAlign: TextAlign.center,)
+                )
+            ),
+            onPressed: () {
+              if(game_state.first_starter+game_state.round/game_state.number_players>=1){
+                game_state.first_starter=((game_state.first_starter+game_state.round)%game_state.number_players)-game_state.round;
+
+              }
+              var index=game_state.names.indexOf(game_state.will_killed);
+              if(game_state.roles[index]=='Hitler'){
+                game_state.is_hitler_alive=false;
+              }
+              game_state.names.removeAt(index);
+              game_state.roles.removeAt(index);
+              game_state.number_players = game_state.names.length;
+              // first_selected=false;
+              game_state.state='base';
+              game_state.first_starter-=1;
+              game_state.next_round();
+
+              // round=round+1;
+
+
+              setState(() {});
+            },
+          )
+        ];
+        break;
+      case 'Search':
+        temp+=<Widget>[
+          Padding(
+            padding: EdgeInsets.all(8.0),
+            //"${game_state.names[turn]}, as the President, you have the power to investigate the role of a person, whether they be a Fascist or a Liberal."
+            // child:Text(
+
+            //   '${game_state.names[turn]},mr president, You can search role of a person that know it is fashist of liberal ',
+            //   style: TextStyle(fontSize: 15),
+            //   textAlign: TextAlign.center,
+            // )
+            child:RichText(
+              textAlign: TextAlign.center,
+              text: TextSpan(
+                style:TextStyle(color:Colors.black,fontSize: 20),
+                children: <TextSpan>[
+                  TextSpan(text: '${game_state.names[game_state.turn]}, as the President,', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
+                  TextSpan(text: ' you have the power to investigate the role of a person, whether they be a Fascist or a Liberal.'),
+
+                ],
+              ),
+            ),
+          ),
+          Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children:[
+                Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child:Text(
+                        'Role Revealed:',
+                        style: TextStyle(fontSize: 30)
+                    )),
+                DropdownButton<String>(
+                  value: game_state.will_Search,
+
+                  onChanged: (String? value) {
+                    // first_selected=true;
+                    print('$value');
+                    // This is called when the user selects an item.
+                    setState(() {
+                      game_state.will_Search = value!;
+                    });
+                  },
+                  items:(game_state.candidate_list()).map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                ),
+
+              ]
+
+          ),
+          TextButton(
+
+            child: Container(
+                height: 40,
+                width: 90,
+                color:Colors.blue,
+                child:Center(
+                    child:Text("Search!",style:TextStyle(color:Colors.white), textAlign: TextAlign.center,)
+                )
+            ),
+            onPressed: () {
+              showRoleDialog(context,game_state.will_Search);
+              game_state.state='base';
+
+              game_state.next_round();
+
+              // first_selected=false;
+              setState(() {});
+            },
+          )
+        ];
+        break;
+      case 'next-persident':
+        temp+=<Widget>[
+          Padding(
+            padding: EdgeInsets.all(8.0),
+            //"${game_state.names[turn]}, as the President, you have the honor of selecting the next president!"
+            // child:Text(
+            //   '${game_state.names[turn]},mr president, You choose next president!',
+            //   style: TextStyle(fontSize: 15),
+            //   textAlign: TextAlign.center,
+            // )
+            child:RichText(
+              text: TextSpan(
+                style:TextStyle(color:Colors.black, fontSize: 20),
+                children: <TextSpan>[
+                  TextSpan(text: '${game_state.names[game_state.turn]}, as the President,', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
+                  TextSpan(text: 'you have the honor of selecting the next president!'),
+                ],
+              ),
+            ),
+          ),
+          Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children:[
+                Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child:Text(
+                        'Next President: ',
+                        style: TextStyle(fontSize: 20)
+                    )),
+                DropdownButton<String>(
+                  value: game_state.will_president,
+
+                  onChanged: (String? value) {
+                    // first_selected=true;
+                    print('$value');
+                    // This is called when the user selects an item.
+                    setState(() {
+                      game_state.will_president = value!;
+                    });
+                  },
+                  items:game_state.candidate_list().map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                ),
+
+              ]
+          ),
+          TextButton(
+            child: Container(
+                height: 40,
+                width: 90,
+                color:Colors.blue,
+                child:Center(
+                    child:Text("Appoint!",style:TextStyle(color:Colors.white), textAlign: TextAlign.center,)
+                )
+            ),
+            onPressed: () {
+              // showRoleDialog(context,will_Search);
+              game_state.special=true;
+              game_state.state='base';
+              //
+
+
+              game_state.old_round=game_state.round;
+              //
+              game_state.first_starter=game_state.first_starter-1;
+              game_state.next_round();
+              // first_selected=false;
+              setState(() {});
+            },
+          )
+        ];
+        break;
+    }
+    return temp;
+  }
 
 
   @override
@@ -361,83 +768,15 @@ class _Game extends State<Game> {
     double height = MediaQuery.of(context).size.height;
     game_state.end_game();
     print(game_state);
-    // print(game_state.names);
-    // print(first_starter);
-    // print(round);
-    // print(old_round);
-    // print(number_players);
-
-    // print('last_president : ${last_president}');
-    // print('last_chancellor : ${last_chancellor}');
 
 
+    List<TableCell> facTable = game_state.get_fac_table(width);
 
- 
-    // List<String> candidate_list=[...game_state.names];
-    // List<String> president_list=[...game_state.names];
+    List<TableCell> libTable= game_state.get_lib_table(width);
 
-
-    List<TableCell> fac_table = [];
-    for (int i = 0; i < 6; i++) {
-
-      fac_table.add(TableCell(
-        verticalAlignment: TableCellVerticalAlignment.top,
-        child: Container(
-          child:game_state.fash_board.length>i?Image(image: AssetImage('assets/fash_policy.png')):(board_fash[game_state.number_players_at_start][i]=='blank'?null:Image(image: AssetImage('assets/'+board_fash[game_state.number_players_at_start][i]+'.png'))),
-          height: 120,
-          width: (width*0.95)/6,
-          color: i>=3?Colors.red[900]:Colors.red,
-        ),
-      ));
-    }
-    List<TableCell> lib_table= [];
-    for (int i = 0; i < 6; i++) {
-      if(i==5){
-        lib_table.add(TableCell(
-        verticalAlignment: TableCellVerticalAlignment.middle,
-
-        child: RotatedBox(
-          quarterTurns: 1,
-          child:Container(
-          // child:lib_board.length>i?Image(image: AssetImage('assets/lib_policy.png')):(board_lib[i]=='blank'?null:Image(image: AssetImage('assets/'+board_lib[i]+'.png'))),
-
-          child:board_lib[i]=='blank'?null:Image(color:Colors.blue[400],image: AssetImage('assets/'+board_lib[i]+'.png')),
-
-          height: 70,
-          width:(width*0.95)/6,
-          color: Colors.white,
-        ),
-        )
-      ));
-      }
-      else{
-      lib_table.add(TableCell(
-        verticalAlignment: TableCellVerticalAlignment.top,
-
-        child: Container(
-          child:game_state.lib_board.length>i?Image(image: AssetImage('assets/lib_policy.png')):(board_lib[i]=='blank'?null:Image(image: AssetImage('assets/'+board_lib[i]+'.png'))),
-
-          // child:board_lib[i]=='blank'?null:Image(image: AssetImage('assets/'+board_lib[i]+'.png')),
-
-          height: 120,
-          width:(width*0.95)/6,
-          color: Colors.blue[400],
-        ),
-      ));
-      }
-    }
+    List <Widget>  uiState = get_ui_state(width,height);
 
 
-    // print("president_selected : ${president_selected}");
-
-    // if(lib_board.length==5 || !is_hitler_alive){
-    //   state='lib win';
-
-    // }
-    // if(fash_board.length==6 || hitler_chancellor ){
-    //   state='fash win';
-
-    // }
 
     return Scaffold(
       appBar: AppBar(
@@ -455,11 +794,11 @@ class _Game extends State<Game> {
                     style:TextStyle(color:Colors.black,fontSize: 18),
                     children: <TextSpan>[
                       if (game_state.last_president!='')... [
-                      TextSpan(text: 'Last president: '),
+                        const TextSpan(text: 'Last president: '),
                       TextSpan(text: '${game_state.last_president}\n', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
                       ],
                       if (game_state.last_chancellor!='')... [
-                      TextSpan(text: 'Last chancellor: '),
+                        const TextSpan(text: 'Last chancellor: '),
                       TextSpan(text: '${game_state.last_chancellor}\n', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
           
                       ]
@@ -468,7 +807,7 @@ class _Game extends State<Game> {
                 ),
 
 
-                if ((game_state.hitler_state&& (state!='lib win' && state!='fash win'))) ...<Widget>[
+                if ((game_state.hitler_state&& (game_state.state!='lib win' && game_state.state!='fash win'))) ...<Widget>[
                   Padding(
                         padding: EdgeInsets.all(8.0),
                         child:Text(
@@ -480,8 +819,8 @@ class _Game extends State<Game> {
                 ],
 
                 if (!(game_state.state!='lib win' && game_state.state!='fash win')) Text(
-                    (state=='lib win')? "Liberals Win the Game" : "Fascists Win the Game",
-                    style: TextStyle(fontSize: 30),
+                    (game_state.state=='lib win')? "Liberals Win the Game" : "Fascists Win the Game",
+                    style: const TextStyle(fontSize: 30),
                     textAlign: TextAlign.center,
                   ),
 
@@ -504,12 +843,12 @@ class _Game extends State<Game> {
                     5: IntrinsicColumnWidth(),
                   },
                   children:<TableRow>[
-                    TableRow(children: fac_table),
-                    TableRow(children: lib_table),
+                    TableRow(children: facTable),
+                    TableRow(children: libTable),
                   ]
                 )
                 ),
-                SizedBox(height: 8.0),
+                const SizedBox(height: 8.0),
                 Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                   children:
@@ -538,603 +877,10 @@ class _Game extends State<Game> {
                       )
                   )
                   ).toList()
-                )
-                ]+
-                  (game_state.state!='base'?<Widget>[]:<Widget>[
-                Padding(
-                    padding: EdgeInsets.all(8.0),
-                    //"Round 3 has begun."
-                    //"Jack, select your Chancellor for the upcoming election."
-                    // child:Text(
-                    //     'It is round ${(round+1).toString()}\n ${game_state.names[turn]} must choose Chancellor',
-                    //     style: TextStyle(fontSize: 20),
-                    //     textAlign: TextAlign.center,
-                    // )
-                    child:RichText(
-                      textAlign: TextAlign.center,
-                      text: TextSpan(
-                        style:TextStyle(color:Colors.black,fontSize: 20),
-                        children: <TextSpan>[
-                          TextSpan(text: 'Round '),
-                          TextSpan(text: '${game_state.round}', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
-                          TextSpan(text: ' has begun.\n'),
-                          TextSpan(text: '${game_state.names[game_state.turn]},',style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28)),
-                          TextSpan(text: ' select your Chancellor for the upcoming election.'),
-                        ],
-                      ),
-                    ),
                 ),
-                Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                  children:[
-                    Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child:Text(
-                      'Your Chancellor: ',
-                      style: TextStyle(fontSize: 30)
-                    )),
-                    DropdownButton<String>(
-                      value: game_state.selected_chancellor,
 
-                      onChanged: (String? value) {
-                        // first_selected=true;
-                        print('$value');
-                        // This is called when the user selects an item.
-                        setState(() {
-                          game_state.selected_chancellor = value!;
-                        });
-                      },
-                      items:game_state.chancellor_list.map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                    ),
-
-                  ]
-                ),
-                TextButton(
-                        child: Container(
-                          height: (height*0.95)/15,
-                          width:(width*0.95)/3,
-                          color:Colors.blue,
-                            child:
-                            Center(child:Text('Select!',style:TextStyle(color:Colors.white, fontSize: (width*0.95)/15),textAlign: TextAlign.center))
-                        ),
-                        onPressed: () {
-                          showMessageDialog(context,game_state.selected_chancellor,game_state.turn);
-                        },
-                    )
-
-              ]
-                  )+
-                  (game_state.state!='elected'?<Widget>[]:<Widget>[
-            Padding(
-              padding: EdgeInsets.all(8.0),
-              child:RichText(
-                    textAlign: TextAlign.center,
-                    text: TextSpan(
-                        style:TextStyle(color:Colors.black,fontSize: 15),
-                        children: <TextSpan>[
-                          TextSpan(text: '${game_state.names[game_state.turn]},', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
-                          TextSpan(text: ' in your esteemed role as the'),
-                          TextSpan(text: ' President,',style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-                          TextSpan(text: ' please select a policy card to be discarded.'),
-
-
-                        ],
-                      ),
-                    ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children:<Widget>[]+game_state.dec.sublist(0, 3).asMap().entries.map((entry)=>
-                  Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: InkWell(
-                        // highlightColor:Colors.black,
-                        //   hoverColor:Colors.yellow,
-                          onTap: () {
-                            print("entry.key: ${entry.key}");
-                            game_state.president_selected=entry.key;
-                            setState(() {});
-                            },
-                        child:Container(
-                          decoration: BoxDecoration(
-                              color :entry.value=='lib'?Colors.blue[400]:Colors.red,
-                              border: game_state.president_selected!=entry.key?null:Border.all(width: 5.0,color: Colors.blueAccent)
-                          ),
-
-                          child:Image(image: AssetImage('assets/'+entry.value+'.png')),
-
-                          height: 155,
-                          width: 85,
-                        ),
-
-                      )
-                  )
-              ).toList(),
-              ),
-            TextButton(
-              child: Container(
-                  height: 40,
-                  width: 80,
-                  color:Colors.blue,
-                  child:Center(
-                      child:Text('Discard!',style:TextStyle(color:Colors.white), textAlign: TextAlign.center,)
-                  )
-              ),
-              onPressed: () {
-                game_state.last_president=game_state.names[game_state.turn];
-                game_state.state='president_discarded';
-                game_state.chancellor_selected=-1;
-                game_state.log=game_state.log+"${game_state.names[game_state.turn]} discard:${game_state.dec[game_state.president_selected]}\n";
-                game_state.dis_dec.add(game_state.dec.removeAt(game_state.president_selected));
-                
-                setState(() {});
-              },
-            )
-            ]
-                  )+
-                  (game_state.state!='president_discarded'?<Widget>[]:<Widget>[
-                    Padding(
-                        padding: EdgeInsets.all(8.0),
-                        //"${chancellor}, entrusted as the Chancellor, graciously pick a card to shape our policy."
-                        child:RichText(
-                          textAlign: TextAlign.center,
-                      text: TextSpan(
-                        style:TextStyle(color:Colors.black,fontSize: 15),
-                        children: <TextSpan>[
-                          TextSpan(text: '${game_state.selected_chancellor},', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
-                          TextSpan(text: ' entrusted as the'),
-                          TextSpan(text: ' Chancellor,', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-                          TextSpan(text: ' graciously pick a card to shape our policy.'),
-
-                        ],
-                      ),
-                    ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children:<Widget>[]+(hide?['hide','hide']:game_state.dec.sublist(0, 2)).asMap().entries.map((entry)=>
-                          Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: InkWell(
-
-                                onTap: () {
-                                  print("entry.key: ${entry.key}");
-                                  game_state.chancellor_selected=entry.key;
-                                  setState(() {});
-                                },
-                                child:Container(
-                                  decoration: BoxDecoration(
-                                      color : (entry.value=='hide'?Colors.grey[400]:(entry.value=='lib'?Colors.blue[400]:Colors.red)),
-                                      border: game_state.chancellor_selected!=entry.key?null:Border.all(width: 5.0,color: Colors.blueAccent)
-                                  ),
-
-                                  child:entry.value=='hide'?Center(child:Icon(Icons.question_mark_outlined,size: 70.0,)):Image(image: AssetImage('assets/'+entry.value+'.png')),
-
-                                  height: 155,
-                                  width: 85,
-                                ),
-
-                              )
-                          )
-                      ).toList(),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children:<Widget>[
-                    if(!hide)TextButton(
-                      child: Container(
-                          height: 40,
-                          width: 80,
-                          color:Colors.blue,
-                          child:Center(
-                              child:Text('Select!',style:TextStyle(color:Colors.white), textAlign: TextAlign.center,)
-                          )
-                      ),
-                      onPressed: () {
-                        // first_selected=false;
-                        game_state.last_chancellor=game_state.selected_chancellor;
-                        game_state.log=game_state.log+"${game_state.selected_chancellor} play:${game_state.dec[game_state.chancellor_selected]}\n";
-                        if(game_state.dec[game_state.chancellor_selected]=='fash'){
-                          game_state.fash_board.add('Done');
-                          if(board_fash[game_state.number_players_at_start][game_state.fash_board.length-1]!='blank'){
-                            print('it is ${board_fash[game_state.number_players_at_start][game_state.fash_board.length-1]} state');
-                            game_state.state=board_fash[game_state.number_players_at_start][game_state.fash_board.length-1];
-                            if (game_state.state=='kill_veto'){
-                              game_state.state='kill';
-                              game_state.veto=true;
-                            }
-                            if (game_state.state=='Search'){
-                              game_state.will_Search=game_state.candidate_list()[0];
-                            }
-                            if (game_state.state=='next-persident'){
-                              game_state.will_president=game_state.candidate_list()[0];
-                            }
-                            if (game_state.state=='kill'){
-                              game_state.will_killed=game_state.candidate_list()[0];
-                            }
-
-                          }
-                          else {
-                            game_state.state = 'base';
-                            game_state.next_round();
-                            // round=round+1;
-                          }
-                        }
-                        else if(game_state.dec[game_state.chancellor_selected]=='lib'){
-                          game_state.lib_board.add('Done');
-                          game_state.state = 'base';
-                          game_state.next_round();
-                          // round=round+1;
-                        }
-
-                        game_state.dec.removeAt(game_state.chancellor_selected);
-                        game_state.dis_dec.add(game_state.dec.removeAt(0));
-
-                        if(game_state.dec.length==2){
-                          game_state.dec=game_state.dec+game_state.dis_dec;
-                          game_state.dec=game_state.dec..shuffle();
-                          game_state.dis_dec=[];
-                        }
-                        
-                        setState(() {});
-                      },
-                    ),
-                    TextButton(
-                      child: Container(
-                          height: 40,
-                          width: 80,
-                          color:Colors.blue,
-                          child:Center(
-                              child:Text(hide?'Unhide!':'Hide!',style:TextStyle(color:Colors.white), textAlign: TextAlign.center,)
-                          )
-                      ),
-                      onPressed: () {
-                        hide= !hide;
-                        setState((){});
-                      },
-                    )
-                    
-                    ] +
-                          (!game_state.posible_veto?<Widget>[]:<Widget>[
-                            TextButton(
-                              child: Container(
-                                  height: 40,
-                                  width: 80,
-                                  color:Colors.orange,
-                                  child:Center(
-                                      child:Text("Veto",style:TextStyle(color:Colors.white), textAlign: TextAlign.center,)
-                                  )
-                              ),
-                              onPressed: () {
-                                // dis_dec.add(dec.removeAt(0));
-                                // dis_dec.add(dec.removeAt(0));
-                                // if(dec.length==2){
-                                //   dec=dec+dis_dec;
-                                //   dec=dec..shuffle();
-                                //   dis_dec=[];
-                                // }
-                                // game_state.posible_veto=false;
-                                // state='base';
-                                // round=round+1;
-                                game_state.do_veto();
-                                game_state.next_round();
-                                // first_selected=false;
-                                setState((){});
-                              },
-                            )
-
-                          ])
-
-                    )
-
-                  ]
-                  )+
-                  (game_state.state!='top-three'?<Widget>[]:<Widget>[
-                    Padding(
-                        padding: EdgeInsets.all(8.0),
-                
-                        child:RichText(
-                        textAlign:TextAlign.center,
-                        text: TextSpan(
-                          style:TextStyle(color:Colors.black,fontSize: 20),
-                          children: <TextSpan>[
-                            TextSpan(text: '${game_state.names[game_state.turn]},', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28)),
-                            TextSpan(text: ' as the '),
-                            TextSpan(text: 'President,',style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
-                            TextSpan(text: ' you may now privately reveal the top three  policy cards.'),
-                          ],
-                      ),
-                    ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children:<Widget>[]+game_state.dec.sublist(0, 3).asMap().entries.map((entry)=>
-                          Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: !game_state.top_tree_seen?null:Container(
-                                  decoration: BoxDecoration(
-                                      color :entry.value=='lib'?Colors.blue[400]:Colors.red,
-                                      // border: chancellor_selected!=entry.key?null:Border.all(width: 5.0,color: Colors.blueAccent)
-                                  ),
-
-                                  child:Image(image: AssetImage('assets/'+entry.value+'.png')),
-
-                                  height: 155,
-                                  width: 85,
-                                ),
-
-
-                          )
-                      ).toList(),
-                    ),
-                    TextButton(
-                      child: Container(
-                          height: 40,
-                          width: 90,
-                          color:Colors.blue,
-                          child:Center(
-                              child:Text(game_state.top_tree_seen?"I've Seen":'Show cards',style:TextStyle(color:Colors.white), textAlign: TextAlign.center,)
-                          )
-                      ),
-                      onPressed: () {
-                        if(!game_state.top_tree_seen) {
-                          game_state.top_tree_seen = true;
-                        }
-                        else{
-                          game_state.top_tree_seen = false;
-                          game_state.state='base';
-                          game_state.next_round();
-                          // round=round+1;
-                          // first_selected=false;
-                          
-                        }
-                        setState(() {});
-                      },
-                    )
-                  ]
-                  )+
-                  ((game_state.state!='kill'&&game_state.state!='kill_veto')?<Widget>[]:<Widget>[
-                    Padding(
-                        padding: EdgeInsets.all(8.0),
-                        //"${game_state.names[turn]}, Mr. President, when you're prepared, you have the option to eliminate a person. Removing Hitler would lead to a Liberal victory."
-                        // child:Text(
-                        //   '${game_state.names[turn]},mr president, If you are ready you can kill a person if you kill the hitler liberals will win ',
-                        //   style: TextStyle(fontSize: 15),
-                        //   textAlign: TextAlign.center,
-                        // )
-                        //"${game_state.names[turn]}, as the President, when you're ready, you have the option to eliminate a person. Removing Hitler would lead to a victory for the Liberals."
-                        child:RichText(
-                          textAlign:TextAlign.center,
-                          text: TextSpan(
-                            style:TextStyle(color:Colors.black),
-                            children: <TextSpan>[
-                              TextSpan(text: '${game_state.names[game_state.turn]}, as the President,', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-                              TextSpan(text: " when you're ready, you have the option to eliminate a person. Removing Hitler would lead to a victory for the Liberals.\n"),
-                              if(game_state.state=='kill_veto') TextSpan(text: "When both the President and Chancellor, both loyal to the Liberals, concur, the Veto option becomes viable."),
-                            ],
-                          ),
-                        ),
-                    ),
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children:[
-                          Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child:Text(
-                                  'Eliminated: ',
-                                  style: TextStyle(fontSize: 30)
-                              )),
-                          DropdownButton<String>(
-                            value: game_state.will_killed,
-
-                            onChanged: (String? value) {
-                              first_selected=true;
-                              print('$value');
-                              // This is called when the user selects an item.
-                              setState(() {
-                                game_state.will_killed = value!;
-                              });
-                            },
-                            items:game_state.candidate_list().map<DropdownMenuItem<String>>((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value),
-                              );
-                            }).toList(),
-                          ),
-                          
-                        ]
-                    ),
-                    TextButton(
-                      
-                            child: Container(
-                                height: 40,
-                                width: 90,
-                                color:Colors.blue,
-                                child:Center(
-                                    child:Text("Eliminate",style:TextStyle(color:Colors.white), textAlign: TextAlign.center,)
-                                )
-                            ),
-                            onPressed: () {
-                              if(game_state.first_starter+round/game_state.number_players>=1){
-                                game_state.first_starter=((game_state.first_starter+round)%game_state.number_players)-game_state.round;
-
-                              }
-                              var index=game_state.names.indexOf(game_state.will_killed);
-                              if(game_state.roles[index]=='Hitler'){
-                                game_state.is_hitler_alive=false;
-                              }
-                              game_state.names.removeAt(index);
-                              game_state.roles.removeAt(index);
-                              game_state.number_players = game_state.names.length;
-                              first_selected=false;
-                              game_state.state='base';
-                              game_state.first_starter-=1;
-                              game_state.next_round();
-
-                              // round=round+1;
-
-
-                              setState(() {});
-                            },
-                          )
-                  ]
-                  )+
-                  (game_state.state!='Search'?<Widget>[]:<Widget>[
-                    Padding(
-                        padding: EdgeInsets.all(8.0),
-                        //"${game_state.names[turn]}, as the President, you have the power to investigate the role of a person, whether they be a Fascist or a Liberal."
-                        // child:Text(
-
-                        //   '${game_state.names[turn]},mr president, You can search role of a person that know it is fashist of liberal ',
-                        //   style: TextStyle(fontSize: 15),
-                        //   textAlign: TextAlign.center,
-                        // )
-                        child:RichText(
-                          textAlign: TextAlign.center,
-                          text: TextSpan(
-                            style:TextStyle(color:Colors.black,fontSize: 20),
-                            children: <TextSpan>[
-                              TextSpan(text: '${game_state.names[game_state.turn]}, as the President,', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
-                              TextSpan(text: ' you have the power to investigate the role of a person, whether they be a Fascist or a Liberal.'),
-                            
-                            ],
-                          ),
-                        ),
-                    ),
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children:[
-                          Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child:Text(
-                                  'Role Revealed:',
-                                  style: TextStyle(fontSize: 30)
-                              )),
-                          DropdownButton<String>(
-                            value: game_state.will_Search,
-
-                            onChanged: (String? value) {
-                              first_selected=true;
-                              print('$value');
-                              // This is called when the user selects an item.
-                              setState(() {
-                                game_state.will_Search = value!;
-                              });
-                            },
-                            items:(game_state.candidate_list()).map<DropdownMenuItem<String>>((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value),
-                              );
-                            }).toList(),
-                          ),
-                          
-                        ]
-                        
-                    ),
-                    TextButton(
-                      
-                            child: Container(
-                                height: 40,
-                                width: 90,
-                                color:Colors.blue,
-                                child:Center(
-                                    child:Text("Search!",style:TextStyle(color:Colors.white), textAlign: TextAlign.center,)
-                                )
-                            ),
-                            onPressed: () {
-                              showRoleDialog(context,game_state.will_Search);
-                              game_state.state='base';
-
-                              game_state.next_round();
-
-                              first_selected=false;
-                              setState(() {});
-                            },
-                          )
-                  ]
-                  )+
-                  (game_state.state!='next-persident'?<Widget>[]:<Widget>[
-                    Padding(
-                        padding: EdgeInsets.all(8.0),
-                        //"${game_state.names[turn]}, as the President, you have the honor of selecting the next president!"
-                        // child:Text(
-                        //   '${game_state.names[turn]},mr president, You choose next president!',
-                        //   style: TextStyle(fontSize: 15),
-                        //   textAlign: TextAlign.center,
-                        // )
-                        child:RichText(
-                          text: TextSpan(
-                            style:TextStyle(color:Colors.black, fontSize: 20),
-                            children: <TextSpan>[
-                              TextSpan(text: '${game_state.names[game_state.turn]}, as the President,', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
-                              TextSpan(text: 'you have the honor of selecting the next president!'),
-                            ],
-                          ),
-                        ),
-                    ),
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children:[
-                          Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child:Text(
-                                  'Next President: ',
-                                  style: TextStyle(fontSize: 20)
-                              )),
-                          DropdownButton<String>(
-                            value: game_state.will_president,
-
-                            onChanged: (String? value) {
-                              first_selected=true;
-                              print('$value');
-                              // This is called when the user selects an item.
-                              setState(() {
-                                game_state.will_president = value!;
-                              });
-                            },
-                            items:game_state.candidate_list().map<DropdownMenuItem<String>>((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value),
-                              );
-                            }).toList(),
-                          ),
-                          
-                        ]
-                    ),
-                    TextButton(
-                            child: Container(
-                                height: 40,
-                                width: 90,
-                                color:Colors.blue,
-                                child:Center(
-                                    child:Text("Appoint!",style:TextStyle(color:Colors.white), textAlign: TextAlign.center,)
-                                )
-                            ),
-                            onPressed: () {
-                              // showRoleDialog(context,will_Search);
-                              game_state.special=true;
-                              game_state.state='base';
-                              //
-
-
-                              game_state.old_round=game_state.round;
-                              //
-                              game_state.first_starter=game_state.first_starter-1;
-                              game_state.next_round();
-                              first_selected=false;
-                              setState(() {});
-                            },
-                          )
-                  ]
-                  )
+                ]
+                  +uiState
             ,
           )
         )
