@@ -75894,7 +75894,7 @@ s=t.w
 r=A.bl(a,n,s).w
 A.bl(a,n,s).toString
 q=A.ahY(n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,B.ja,n)
-s=A.Y2(B.Cv,!1,new A.a9G(o),"Refresh")
+s=A.Y2(B.Cv,!1,new A.a9G(o),"Refresh ")
 r=r.a.a*0.9
 p=t.p
 return A.Iv(A.TH(A.bx("Donate",n,n,n,n,n,n)),n,new A.b8(B.l_,A.kR(A.a([A.dM(A.Xi(B.Pc,new A.a9H(),q),50,r),A.al1(new A.b8(B.bd,A.kR(A.a([A.dF(A.bx(o.e,n,n,n,A.b5(n,n,n,n,n,n,n,n,n,n,n,30,n,n,n,n,n,!0,n,n,n,n,n,n,n,n),n,n),n,n),A.qT(B.a7,A.a([A.cg(n,new A.vK(40,o.d,n,n,n,"Linear progress indicator",u.r,n),n,n,n,30,n,n,r),B.P7],p),B.as,B.cn,n)],p),B.V,B.bV,B.af),n),n,n)],p),B.V,B.qG,B.af),n),s)}}
