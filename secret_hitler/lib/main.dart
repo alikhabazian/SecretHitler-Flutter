@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:secret_hitler/rollassigning.dart';
+import 'package:secret_hitler/donate.dart';
+import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
 // import 'package:url_launcher/url_launcher.dart';
 // import 'package:url_launcher/url_launcher_string.dart';
 
@@ -96,10 +99,39 @@ class Home extends StatelessWidget {
               child:ElevatedButton(
                 style: style,
                 onPressed: ()async{
-                  // _launchURL('https://www.secrethitler.com/assets/Secret_Hitler_Rules.pdf');
+
+
+
+                  final Uri _url = Uri.parse('https://youtu.be/mbGXIDYdtas?si=l8QQgu_Bm3-i99jI');
+                  await launchUrl(_url);
+
+
+                   // _launchURL('https://youtu.be/mbGXIDYdtas?si=l8QQgu_Bm3-i99jI');
 
                 },
                 child: const Text('How to Play'),
+              ),
+            ),
+            SizedBox(height: 20,),
+            SizedBox(
+              width: width*0.6,
+              height: 50,
+              child:ElevatedButton(
+                style: style,
+                onPressed: ()async{
+                  // var url = Uri.https('hamibash.com','/api/api/Goal/getGoalPageShow/26505');
+                  // var response = await http.get(url);
+                  // print(response.body);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => Donatepage()),
+                  );
+
+
+                  // LinearProgressIndicator
+
+                },
+                child: const Text('Donate'),
               ),
             ),
 
@@ -315,7 +347,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   padding:EdgeInsets.all(4)
 
                 ),
-            
+
             // Text(
             //   '$_counter',
             //   style: Theme.of(context).textTheme.headlineMedium,
@@ -323,7 +355,7 @@ class _MyHomePageState extends State<MyHomePage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                
+
                 ClipOval(
                   child: Material(
                     color: Colors.blue,

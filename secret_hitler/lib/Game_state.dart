@@ -115,7 +115,7 @@ class Game_state {
     end_game();
     round=round+1;
     turn=(first_starter+round)%number_players;
-    if(special ){
+    if(special){
       turn=names.indexOf(will_president);
     }
     special=false;
