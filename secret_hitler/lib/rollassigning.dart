@@ -122,7 +122,11 @@ class _RollAssigning extends State<RollAssigning> {
     print(roles);
     bool every_one_know_his_role=false;
     every_one_know_his_role=seen.every((value)=>value==true);
+
+    // TODO if you want to skip instantly
     every_one_know_his_role=true;
+
+
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
     return Scaffold(
