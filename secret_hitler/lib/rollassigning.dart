@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:secret_hitler/game.dart';
+import 'package:secret_hitler/gameUI.dart';
 import 'dart:convert';
 class RollAssigning extends StatefulWidget {
   final List<String> data;

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 // import 'package:secret_hitler/Game_state.dart';
 import 'package:secret_hitler/state_management.dart';
-void showRoleDialog(BuildContext context,String name,List<String> roles,GameState game_state) {
+void showRoleDialog(BuildContext context,GameState game_state) {
   showDialog(
     context: context,
     barrierDismissible:false,
     builder: (BuildContext context) {
       String rool='';
-      if (roles[game_state.names.indexOf(name)]=='Liberal'){
+      if (game_state.roles[game_state.names.indexOf(game_state.willSearch)]=='Liberal'){
         rool='Liberal';
       }
       else{
@@ -21,7 +21,7 @@ void showRoleDialog(BuildContext context,String name,List<String> roles,GameStat
             style:const TextStyle(color:Colors.black),
             children: <TextSpan>[
               const TextSpan(text: 'You investigated '),
-              TextSpan(text: name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+              TextSpan(text: game_state.willSearch, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
               const TextSpan(text: ' and their role is '),
               TextSpan(text: '$rool.', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
 
@@ -83,10 +83,12 @@ void showMessageDialog(BuildContext context,String name,GameState game_state) {
                             if(game_state.roles[game_state.names.indexOf(name)]=='Hitler'&& game_state.hitlerState){
                               game_state.hitlerChancellor();
                             }
-                            game_state.changeNumberOfRejected(0);
-                            Navigator.of(context).pop();
-                            game_state.updatePage();
 
+                            game_state.changeNumberOfRejected(0);
+
+                            Navigator.of(context).pop();
+
+                            game_state.updatePage();
                           },
                         ),
                         TextButton(
