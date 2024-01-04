@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:secret_hitler/Game_state.dart';
-
-void showRoleDialog(BuildContext context,String name,List<String> roles,Game_state game_state) {
+// import 'package:secret_hitler/Game_state.dart';
+import 'package:secret_hitler/state_management.dart';
+void showRoleDialog(BuildContext context,String name,List<String> roles,GameState game_state) {
   showDialog(
     context: context,
     barrierDismissible:false,
@@ -41,7 +41,7 @@ void showRoleDialog(BuildContext context,String name,List<String> roles,Game_sta
     },
   );
 }
-void showMessageDialog(BuildContext context,String name,int turn,List<String> roles,Game_state game_state,VoidCallback setState) {
+void showMessageDialog(BuildContext context,String name,GameState game_state) {
   showDialog(
     context: context,
     builder: (BuildContext context) {
@@ -63,7 +63,6 @@ void showMessageDialog(BuildContext context,String name,int turn,List<String> ro
           TextButton(
             child: const Text('Yes'),
             onPressed: () {
-
               Navigator.of(context).pop();
               showDialog(
                   context: context,
@@ -76,18 +75,17 @@ void showMessageDialog(BuildContext context,String name,int turn,List<String> ro
                           child: const Text('Yes'),
                           onPressed: () {
                             // first_selected=true;
-                            if(game_state.veto && widget.roles[game_state.names.indexOf(name)]=='Liberal' && widget.roles[turn]=='Liberal'){
-                              game_state.posible_veto=true;
+                            if(game_state.veto && game_state.roles[game_state.names.indexOf(name)]=='Liberal' && game_state.roles[game_state.turn]=='Liberal'){
+                              game_state.activateVeto();
                             }
-                            game_state.state='elected';
-                            game_state.president_selected=-1;
-                            if(widget.roles[game_state.names.indexOf(name)]=='Hitler'&& game_state.hitler_state){
-                              game_state.hitler_chancellor=true;
-
+                            game_state.changeState('elected');
+                            game_state.changePresidentSelected(-1);
+                            if(game_state.roles[game_state.names.indexOf(name)]=='Hitler'&& game_state.hitlerState){
+                              game_state.hitlerChancellor();
                             }
-                            game_state.number_rejected=0;
+                            game_state.changeNumberOfRejected(0);
                             Navigator.of(context).pop();
-                            setState(() { });
+                            game_state.updatePage();
 
                           },
                         ),
@@ -97,26 +95,25 @@ void showMessageDialog(BuildContext context,String name,int turn,List<String> ro
 
                             // round=round+1;
                             // first_selected=false;
-                            game_state.number_rejected+=1;
-                            if(game_state.number_rejected==3){
-                              game_state.chaos=true;
-                              game_state.number_rejected=0;
+                            game_state.changeNumberOfRejected(game_state.numberRejected+1);
+                            if(game_state.numberRejected==3){
+                              game_state.chaosActivate();
+                              game_state.changeNumberOfRejected(0);
                               if(game_state.dec[0]=='fash'){
-                                game_state.fash_board.add('Done');
+                                game_state.fashBoard.add('Done');
 
                               }
                               else if(game_state.dec[0]=='lib'){
-                                game_state.lib_board.add('Done');
+                                game_state.libBoard.add('Done');
 
                               }
                               game_state.dec.removeAt(0);
 
 
                             }
-                            game_state.next_round();
+                            game_state.nextRound();
                             Navigator.of(context).pop();
-                            setState(() { });
-
+                            game_state.updatePage();
                           },
                         ),
                       ],
@@ -130,6 +127,59 @@ void showMessageDialog(BuildContext context,String name,int turn,List<String> ro
       );
     },
   );
+}
+
+List<TableCell> generateFacTable(width,fashBoard,boardFash,numberPlayersInitial){
+  List<TableCell> fac_table = [];
+  for (int i = 0; i < 6; i++) {
+    fac_table.add(TableCell(
+      verticalAlignment: TableCellVerticalAlignment.top,
+      child: Container(
+        child:fashBoard.length>i?Image(image: AssetImage('assets/fash_policy.png')):(boardFash[numberPlayersInitial][i]=='blank'?null:Image(image: AssetImage('assets/'+boardFash[numberPlayersInitial][i]+'.png'))),
+        height: 120,
+        width: (width*0.95)/6,
+        color: i>=3?Colors.red[900]:Colors.red,
+      ),
+    ));
+  }
+
+  return fac_table;
+}
+List<TableCell> generateLibTable(width,libBoard,boardLib){
+  List<TableCell> libTable= [];
+  for (int i = 0; i < 6; i++) {
+    if(i==5){
+      libTable.add(TableCell(
+          verticalAlignment: TableCellVerticalAlignment.middle,
+          child: RotatedBox(
+            quarterTurns: 1,
+            child:Container(
+              // child:lib_board.length>i?Image(image: AssetImage('assets/lib_policy.png')):(board_lib[i]=='blank'?null:Image(image: AssetImage('assets/'+board_lib[i]+'.png'))),
+              child:boardLib[i]=='blank'?null:Image(color:Colors.blue[400],image: AssetImage('assets/'+boardLib[i]+'.png')),
+              height: 70,
+              width:(width*0.95)/6,
+              color: Colors.white,
+            ),
+          )
+      ));
+    }
+    else{
+      libTable.add(TableCell(
+        verticalAlignment: TableCellVerticalAlignment.top,
+
+        child: Container(
+          child:libBoard.length>i?Image(image: AssetImage('assets/lib_policy.png')):(boardLib[i]=='blank'?null:Image(image: AssetImage('assets/'+boardLib[i]+'.png'))),
+
+          // child:board_lib[i]=='blank'?null:Image(image: AssetImage('assets/'+board_lib[i]+'.png')),
+
+          height: 120,
+          width:(width*0.95)/6,
+          color: Colors.blue[400],
+        ),
+      ));
+    }
+  }
+  return libTable;
 }
 
 void selectAtBase(BuildContext context,String name){

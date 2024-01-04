@@ -13,7 +13,7 @@ void main() {
   runApp(
       MultiProvider(
           providers: [
-          ChangeNotifierProvider(create: (context) => MyState()),
+          ChangeNotifierProvider(create: (context) => GameState()),
           ],
 
           child: MyApp()
