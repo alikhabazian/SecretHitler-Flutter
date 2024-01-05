@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:secret_hitler/state_management.dart';
 import 'package:secret_hitler/gameFunctions.dart';
 import 'package:secret_hitler/gameUIFunctions.dart';
+import 'package:secret_hitler/tester.dart';
 
 
 
@@ -18,7 +19,11 @@ class Game extends StatefulWidget {
 }
 class _Game extends State<Game> {
   late GameState gameState;
+
+  bool activeTester=true;
   // bool hide = false;
+
+
 
   @override
   initState() {
@@ -182,6 +187,15 @@ class _Game extends State<Game> {
     List<TableCell> libTable= generateLibTable(width, gameState.libBoard, gameState.boardLib);
 
     List <Widget>  uiState = getUiState(context,width,height,gameState);
+    if (activeTester) {
+      if(!gameState.lockTester) {
+        Future.delayed(Duration(seconds: 2), () {
+          GameTester gameTester = GameTester();
+          gameTester.runTester(context, gameState);
+        });
+        gameState.changeLockTester(true);
+      }
+    }
 
 
     return Scaffold(

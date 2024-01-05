@@ -107,6 +107,15 @@ Widget failedElection(numberRejected){
   );
 }
 
+void discardPresident(GameState game_state){
+  game_state.changeLastPresident(game_state.names[game_state.turn]);
+  game_state.changeState('president_discarded');
+  game_state.changeChancellorSelect(-1);
+  game_state.addLog("${game_state.names[game_state.turn]} discard:${game_state.dec[game_state.presidentSelected]}\n");
+  game_state.disDec.add(game_state.dec.removeAt(game_state.presidentSelected));
+  game_state.updatePage();
+}
+
 List <Widget> getUiState(context,width,height,GameState game_state){
   List <Widget> temp=<Widget>[];
   switch (game_state.state){
@@ -202,9 +211,7 @@ List <Widget> getUiState(context,width,height,GameState game_state){
                     // highlightColor:Colors.black,
                     //   hoverColor:Colors.yellow,
                     onTap: () {
-                      print("entry.key: ${entry.key}");
                       game_state.changePresidentSelect(entry.key);
-                      game_state.updatePage();
                     },
                     child:Container(
                       decoration: BoxDecoration(
@@ -232,12 +239,7 @@ List <Widget> getUiState(context,width,height,GameState game_state){
               )
           ),
           onPressed: () {
-            game_state.changeLastPresident(game_state.names[game_state.turn]);
-            game_state.changeState('president_discarded');
-            game_state.changeChancellorSelect(-1);
-            game_state.addLog("${game_state.names[game_state.turn]} discard:${game_state.dec[game_state.presidentSelected]}\n");
-            game_state.disDec.add(game_state.dec.removeAt(game_state.presidentSelected));
-            game_state.updatePage();
+            discardPresident(game_state);
           },
         )
       ];

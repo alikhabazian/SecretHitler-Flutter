@@ -4,6 +4,8 @@ import 'dart:math';
 
 
 class GameState extends ChangeNotifier {
+  bool _lockTester=false;
+
   int _numberPlayers=0;
   // int _numberPlayersInitial=0;
   int _round=0;
@@ -86,6 +88,11 @@ class GameState extends ChangeNotifier {
   String get willSearch =>_willSearch;
   String get willresident =>_willPresident;
   bool get special =>_special;
+  bool get lockTester =>_lockTester;
+
+  void changeLockTester(bool value){
+    _lockTester=value;
+  }
 
   void specialRound(){
     changeSpecial(true);
@@ -174,6 +181,7 @@ class GameState extends ChangeNotifier {
   }
   void changePresidentSelect(int value){
     _presidentSelected=value;
+    notifyListeners();
   }
   void chaosActivate(){
     _chaos=true;

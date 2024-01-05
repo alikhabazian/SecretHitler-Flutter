@@ -1,11 +1,31 @@
-import 'package:secret_hitler/Game_state.dart';
+import 'package:secret_hitler/state_management.dart';
+import 'package:secret_hitler/gameFunctions.dart';
+import 'package:secret_hitler/gameUIFunctions.dart';
+import 'dart:math';
+import 'package:flutter/material.dart';
+
 class GameTester {
-  void setUp(){
 
-  }
-
-  void runTester(Game_state gameState){
+  void runTester(context,GameState gameState){
     if(gameState.state=='base'){
+      Random random = Random();
+      int index = random.nextInt(gameState.chancellorList.length);
+      gameState.changeSelectedChancellor(gameState.chancellorList[index]);
+      Future.delayed(Duration(seconds: 2), () {
+        showMessageDialog(context,gameState.selectedChancellor, gameState);
+        Future.delayed(Duration(seconds: 2), () {
+          onPressedConfirmationYes(context,gameState.selectedChancellor,gameState);
+          Future.delayed(Duration(seconds: 2), () {
+            gameState.changeLockTester(false);
+            onPressedSuccessElection(context,gameState.selectedChancellor,gameState);
+
+          });
+        });
+
+      });
+
+
+
 
 
     }
@@ -13,9 +33,18 @@ class GameTester {
 
     }
     else if(gameState.state=='elected'){
+      Random random = Random();
+      int index = random.nextInt(3);
+      gameState.changePresidentSelect(index);
+      Future.delayed(Duration(seconds: 2), () {
+        gameState.changeLockTester(false);
+         discardPresident(gameState);
 
+        }
+      );
     }
     else if(gameState.state=='president_discarded'){
+      print("Hi now I am in president_discarded");
 
     }
     else if(gameState.state=='kill_veto'){

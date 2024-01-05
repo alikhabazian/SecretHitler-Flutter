@@ -41,6 +41,81 @@ void showRoleDialog(BuildContext context,GameState game_state) {
     },
   );
 }
+
+
+void onPressedSuccessElection(BuildContext context,String name,GameState game_state) {
+  // first_selected=true;
+  if(game_state.veto && game_state.roles[game_state.names.indexOf(name)]=='Liberal' && game_state.roles[game_state.turn]=='Liberal'){
+     game_state.activateVeto();
+  }
+  game_state.changeState('elected');
+  game_state.changePresidentSelected(-1);
+  if(game_state.roles[game_state.names.indexOf(name)]=='Hitler'&& game_state.hitlerState){
+    game_state.hitlerChancellor();
+  }
+
+  game_state.changeNumberOfRejected(0);
+  Navigator.of(context).pop();
+  game_state.updatePage();
+}
+
+void onPressedFailElection(BuildContext context,String name,GameState game_state){
+
+    // round=round+1;
+    // first_selected=false;
+    game_state.changeNumberOfRejected(game_state.numberRejected+1);
+    if(game_state.numberRejected==3){
+      game_state.chaosActivate();
+      game_state.changeNumberOfRejected(0);
+      if(game_state.dec[0]=='fash'){
+        game_state.fashBoard.add('Done');
+
+      }
+      else if(game_state.dec[0]=='lib'){
+        game_state.libBoard.add('Done');
+
+      }
+      game_state.dec.removeAt(0);
+
+
+    }
+    game_state.nextRound();
+    Navigator.of(context).pop();
+    game_state.updatePage();
+
+}
+
+void onPressedConfirmationYes(BuildContext context,String name,GameState game_state){
+    Navigator.of(context).pop();
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Election'),
+            content: const Text("Has the election for the government concluded?"),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('Yes'),
+                onPressed: (){
+                  onPressedSuccessElection(context,name,game_state);
+                  },
+
+              ),
+              TextButton(
+                child: const Text('No'),
+                onPressed: () {
+                  onPressedFailElection(context,name,game_state);
+                },
+              ),
+            ],
+          );
+        },
+        barrierDismissible:false
+    );
+
+}
+
+
 void showMessageDialog(BuildContext context,String name,GameState game_state) {
   showDialog(
     context: context,
@@ -63,66 +138,7 @@ void showMessageDialog(BuildContext context,String name,GameState game_state) {
           TextButton(
             child: const Text('Yes'),
             onPressed: () {
-              Navigator.of(context).pop();
-              showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: const Text('Election'),
-                      content: const Text("Has the election for the government concluded?"),
-                      actions: <Widget>[
-                        TextButton(
-                          child: const Text('Yes'),
-                          onPressed: () {
-                            // first_selected=true;
-                            if(game_state.veto && game_state.roles[game_state.names.indexOf(name)]=='Liberal' && game_state.roles[game_state.turn]=='Liberal'){
-                              game_state.activateVeto();
-                            }
-                            game_state.changeState('elected');
-                            game_state.changePresidentSelected(-1);
-                            if(game_state.roles[game_state.names.indexOf(name)]=='Hitler'&& game_state.hitlerState){
-                              game_state.hitlerChancellor();
-                            }
-
-                            game_state.changeNumberOfRejected(0);
-
-                            Navigator.of(context).pop();
-
-                            game_state.updatePage();
-                          },
-                        ),
-                        TextButton(
-                          child: const Text('No'),
-                          onPressed: () {
-
-                            // round=round+1;
-                            // first_selected=false;
-                            game_state.changeNumberOfRejected(game_state.numberRejected+1);
-                            if(game_state.numberRejected==3){
-                              game_state.chaosActivate();
-                              game_state.changeNumberOfRejected(0);
-                              if(game_state.dec[0]=='fash'){
-                                game_state.fashBoard.add('Done');
-
-                              }
-                              else if(game_state.dec[0]=='lib'){
-                                game_state.libBoard.add('Done');
-
-                              }
-                              game_state.dec.removeAt(0);
-
-
-                            }
-                            game_state.nextRound();
-                            Navigator.of(context).pop();
-                            game_state.updatePage();
-                          },
-                        ),
-                      ],
-                    );
-                  },
-                  barrierDismissible:false
-              );
+              onPressedConfirmationYes(context,name,game_state);
             },
           ),
         ],
