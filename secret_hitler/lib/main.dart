@@ -5,10 +5,20 @@ import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 // import 'package:url_launcher/url_launcher.dart';
 // import 'package:url_launcher/url_launcher_string.dart';
+import 'package:provider/provider.dart';
+import 'package:secret_hitler/state_management.dart';
 
 void main() {
   // runApp(const MyApp());
-  runApp(const MyApp());
+  runApp(
+      MultiProvider(
+          providers: [
+          ChangeNotifierProvider(create: (context) => GameState()),
+          ],
+
+          child: MyApp()
+      )
+  );
 }
 
 

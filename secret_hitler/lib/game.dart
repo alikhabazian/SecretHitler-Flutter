@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:secret_hitler/Game_state.dart';
-
+import 'package:provider/provider.dart';
 
 class Game extends StatefulWidget {
   final List<String> name;
@@ -158,6 +158,7 @@ class _Game extends State<Game> {
 
   List <Widget> get_ui_state(width,height){
     List <Widget> temp=<Widget>[];
+
 
     switch (game_state.state){
       case 'base':
