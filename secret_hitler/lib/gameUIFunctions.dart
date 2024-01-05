@@ -107,12 +107,75 @@ Widget failedElection(numberRejected){
   );
 }
 
+void topThreeSeenToggle(GameState game_state){
+  if(!game_state.topThreeSeen) {
+    game_state.changeTopThreeSeen(true);
+  }
+  else{
+    game_state.changeTopThreeSeen(false);
+    game_state.changeState('base');
+    game_state.nextRound();
+  }
+  game_state.updatePage();
+}
+
+void discardChancellor(GameState game_state){
+  game_state.changeLastChancellor(game_state.selectedChancellor);
+  game_state.addLog("${game_state.selectedChancellor} play:${game_state.dec[game_state.chancellorSelected]}\n");
+  if(game_state.dec[game_state.chancellorSelected]=='fash'){
+    game_state.fashBoard.add('Done');
+    if(game_state.boardFash[game_state.numberPlayersInitial][game_state.fashBoard.length-1]!='blank'){
+      print('it is ${game_state.boardFash[game_state.numberPlayersInitial][game_state.fashBoard.length-1]} state');
+      game_state.changeState(game_state.boardFash[game_state.numberPlayersInitial][game_state.fashBoard.length-1]);
+      if (game_state.state=='kill_veto'){
+        game_state.changeState('kill');
+        game_state.activateVeto();
+      }
+      if (game_state.state=='Search'){
+        game_state.changeWillSearch(game_state.candidateList()[0]);
+      }
+      if (game_state.state=='next-persident'){
+        game_state.changeWillPresident(game_state.candidateList()[0]);
+      }
+      if (game_state.state=='kill'){
+        game_state.changeWillKilled(game_state.candidateList()[0]);
+      }
+    }
+    else {
+      game_state.changeState('base');
+      game_state.nextRound();
+    }
+  }
+  else if(game_state.dec[game_state.chancellorSelected]=='lib'){
+    game_state.libBoard.add('Done');
+    game_state.changeState('base');
+    game_state.nextRound();
+  }
+  game_state.removeSelectedDec(game_state.chancellorSelected);
+  game_state.addDisDec();
+  game_state.enoughDec();
+  game_state.updatePage();
+}
+
 void discardPresident(GameState game_state){
   game_state.changeLastPresident(game_state.names[game_state.turn]);
   game_state.changeState('president_discarded');
   game_state.changeChancellorSelect(-1);
   game_state.addLog("${game_state.names[game_state.turn]} discard:${game_state.dec[game_state.presidentSelected]}\n");
   game_state.disDec.add(game_state.dec.removeAt(game_state.presidentSelected));
+  game_state.updatePage();
+}
+
+void vetoOnPressed(GameState game_state){
+  game_state.doVeto();
+  game_state.nextRound();
+  game_state.updatePage();
+}
+
+void searchOnPressed(context,GameState game_state){
+  showRoleDialog(context,game_state);
+  game_state.changeState('base');
+  game_state.nextRound();
   game_state.updatePage();
 }
 
@@ -387,10 +450,7 @@ List <Widget> getUiState(context,width,height,GameState game_state){
                       // game_state.posible_veto=false;
                       // state='base';
                       // round=round+1;
-                      game_state.doVeto();
-                      game_state.nextRound();
-                      // first_selected=false;
-                      game_state.updatePage();
+                      vetoOnPressed(game_state);
                     },
                   )
 
@@ -404,7 +464,6 @@ List <Widget> getUiState(context,width,height,GameState game_state){
       temp+=<Widget>[
         Padding(
           padding: EdgeInsets.all(8.0),
-
           child:RichText(
             textAlign:TextAlign.center,
             text: TextSpan(
@@ -449,18 +508,7 @@ List <Widget> getUiState(context,width,height,GameState game_state){
               )
           ),
           onPressed: () {
-            if(!game_state.topThreeSeen) {
-              game_state.changeTopThreeSeen(true);
-            }
-            else{
-              game_state.changeTopThreeSeen(false);
-              game_state.changeState('base');
-              game_state.nextRound();
-              // round=round+1;
-              // first_selected=false;
-
-            }
-            game_state.updatePage();
+            topThreeSeenToggle(game_state);
           },
         )
       ];
@@ -506,7 +554,7 @@ List <Widget> getUiState(context,width,height,GameState game_state){
                   print('$value');
                   // This is called when the user selects an item.
                   game_state.changeWillKilled(value!);
-                  game_state.updatePage();
+                  // game_state.updatePage();
                 },
                 items:game_state.candidateList().map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(
@@ -573,7 +621,7 @@ List <Widget> getUiState(context,width,height,GameState game_state){
                   print('$value');
                   // This is called when the user selects an item.
                   game_state.changeWillSearch(value!) ;
-                  game_state.updatePage();
+                  // game_state.updatePage();
                 },
                 items:(game_state.candidateList()).map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(
@@ -597,11 +645,7 @@ List <Widget> getUiState(context,width,height,GameState game_state){
               )
           ),
           onPressed: () {
-            showRoleDialog(context,game_state);
-            game_state.changeState('base');
-            game_state.nextRound();
-            // first_selected=false;
-            game_state.updatePage();
+            searchOnPressed(context,game_state);
           },
         )
       ];
@@ -643,7 +687,7 @@ List <Widget> getUiState(context,width,height,GameState game_state){
                   print('$value');
                   // This is called when the user selects an item.
                   game_state.changeWillPresident(value!);
-                  game_state.updatePage();
+                  // game_state.updatePage();
                 },
                 items:game_state.candidateList().map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(

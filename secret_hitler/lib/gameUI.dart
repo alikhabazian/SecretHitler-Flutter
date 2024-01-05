@@ -20,7 +20,7 @@ class Game extends StatefulWidget {
 class _Game extends State<Game> {
   late GameState gameState;
 
-  bool activeTester=true;
+  bool activeTester=false;
   // bool hide = false;
 
 

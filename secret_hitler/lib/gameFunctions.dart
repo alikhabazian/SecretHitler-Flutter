@@ -32,7 +32,6 @@ void showRoleDialog(BuildContext context,GameState game_state) {
           TextButton(
             child: const Text('OK'),
             onPressed: () {
-
               Navigator.of(context).pop();
             },
           ),

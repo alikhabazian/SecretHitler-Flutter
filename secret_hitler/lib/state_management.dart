@@ -153,14 +153,17 @@ class GameState extends ChangeNotifier {
 
   void changeWillKilled(String willKilled){
     _willKilled=willKilled;
+    notifyListeners();
   }
 
   void changeWillPresident(String willPresident){
     _willPresident=willPresident;
+    notifyListeners();
   }
 
   void changeWillSearch(String willSearch){
     _willSearch=willSearch;
+    notifyListeners();
   }
 
   void changeLastChancellor(String lastChancellor){
@@ -174,6 +177,7 @@ class GameState extends ChangeNotifier {
 
   void changeChancellorSelect(int value){
     _chancellorSelected=value;
+    notifyListeners();
   }
 
   void changeLastPresident(String lastPresident){
@@ -315,6 +319,9 @@ class GameState extends ChangeNotifier {
     round:${_round}
     first_starter:${_firstStarter}
     number_players:${_numberPlayers}
+    playersname:${_names}
+    roles:${_roles}
+    killed_players:${_killedturns}
     dec:${_dec}
     dis_dec:${_disDec}
     number_rejected:${_numberRejected}
