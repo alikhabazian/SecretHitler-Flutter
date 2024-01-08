@@ -274,7 +274,6 @@ class GameState extends ChangeNotifier {
 
     endGame();
     _round=_round+1;
-    // int specialEffect=;
     int killedEffect=0;
     do {
       if (_special) {
@@ -282,7 +281,7 @@ class GameState extends ChangeNotifier {
         _specialEffect=-1;
       }
       else {
-        _turn = (_firstStarter + _round + _specialEffect+ killedEffect) % _numberPlayers;
+        _turn = (_firstStarter + _round + _specialEffect + killedEffect) % _numberPlayers;
       }
       killedEffect++;
     }while(_killedturns.contains(_turn));
