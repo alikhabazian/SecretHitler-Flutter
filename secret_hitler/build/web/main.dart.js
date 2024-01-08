@@ -72592,7 +72592,7 @@ $0(){A.dL(this.a,!1).dh()},
 $S:0}
 A.ahL.prototype={
 $1(a){var s=this.a,r=this.b
-return A.tO(A.a([A.e_(B.w4,new A.ahJ(a,s,r),null),A.e_(B.Oh,new A.ahK(a,s,r),null)],t.p),B.Od,B.Ok)},
+return A.tO(A.a([A.e_(B.w4,new A.ahJ(a,s,r),null),A.e_(B.Oh,new A.ahK(a,s,r),null)],t.p),B.Od,B.Ol)},
 $S:40}
 A.ahJ.prototype={
 $0(){A.aEK(this.a,this.b,this.c)},
@@ -72805,7 +72805,7 @@ o=A.amY("assets/logo.png")
 r=this.f
 r===$&&A.b()
 q=n*0.6
-return A.Jm(p,B.zO,A.a65(A.ajF(!0,A.dH(A.l4(A.a([new A.bh(new A.aj(16,16,16,16),o,p),new A.pI(r,new A.abg(this,n,s),p,t.yl),A.dm(p,20,p),A.dm(A.G6(B.Os,new A.abh(a),s),50,q),A.dm(p,20,p),A.dm(A.G6(B.Oe,new A.abi(),s),50,q),A.dm(p,20,p),A.dm(A.G6(B.Ol,new A.abj(a),s),50,q),new A.bh(new A.aj(16,16,16,16),A.amY("assets/box.gif"),p)],t.p),B.T,B.hD,B.a9),p,p),!0)),p)}}
+return A.Jm(p,B.zO,A.a65(A.ajF(!0,A.dH(A.l4(A.a([new A.bh(new A.aj(16,16,16,16),o,p),new A.pI(r,new A.abg(this,n,s),p,t.yl),A.dm(p,20,p),A.dm(A.G6(B.Os,new A.abh(a),s),50,q),A.dm(p,20,p),A.dm(A.G6(B.Oe,new A.abi(),s),50,q),A.dm(p,20,p),A.dm(A.G6(B.Ok,new A.abj(a),s),50,q),new A.bh(new A.aj(16,16,16,16),A.amY("assets/box.gif"),p)],t.p),B.T,B.hD,B.a9),p,p),!0)),p)}}
 A.abk.prototype={
 $1(a){var s
 this.a.e=a
@@ -78682,8 +78682,8 @@ B.w4=new A.cY("Yes",null,null,null,null,null,null,null,null)
 B.Oh=new A.cY("No",null,null,null,null,null,null,null,null)
 B.MQ=new A.q(!0,B.y,null,null,null,null,14,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null)
 B.Oj=new A.cY(u.r,null,B.MQ,null,null,null,null,null,null)
-B.Ok=new A.cY("Election",null,null,null,null,null,null,null,null)
-B.Ol=new A.cY("Donate",null,null,null,null,null,null,null,null)
+B.Ok=new A.cY("About Me",null,null,null,null,null,null,null,null)
+B.Ol=new A.cY("Election",null,null,null,null,null,null,null,null)
 B.Om=new A.cY("",null,B.id,B.a6,null,null,null,null,null)
 B.On=new A.cY("Confirmation",null,null,null,null,null,null,null,null)
 B.Oo=new A.cY("Donation Link Hamibash",null,null,null,null,null,null,null,null)

@@ -189,7 +189,7 @@ class _HomeState extends State<Home> {
                   // LinearProgressIndicator
 
                 },
-                child: const Text('Donate'),
+                child: const Text('About Me'),
               ),
             ),
 
