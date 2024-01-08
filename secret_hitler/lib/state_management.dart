@@ -1,9 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 class GameState extends ChangeNotifier {
+  bool _continuegame=false;
   bool _lockTester=false;
 
   int _numberPlayers=0;
@@ -52,9 +54,7 @@ class GameState extends ChangeNotifier {
     9:['Search','Search','next-persident','kill','kill_veto','fash'],
     10:['Search','Search','next-persident','kill','kill_veto','fash'],
   };
-
   List<String> _boardLib=['blank','blank','blank','blank','lib','lib'];
-
   int _specialEffect=0;
 
 
@@ -75,6 +75,7 @@ class GameState extends ChangeNotifier {
   int get turn=>_turn;
   List<String> get chancellorList=> _chancellorList;
   bool get veto =>_veto;
+  bool get continuegame =>_continuegame;
   List<String> get roles=>_roles;
   // bool get chaos =>_chaos;
   List<String> get dec=>_dec;
@@ -296,6 +297,9 @@ class GameState extends ChangeNotifier {
     if(_fashBoard.length>2){
       _hitlerState=true;
     }
+    final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+    _prefs.then((pref) => {updateSharedPreferences(pref)});
+
   }
 
   void doVeto(){
@@ -334,10 +338,86 @@ class GameState extends ChangeNotifier {
     ''';
   }
 
+  void loadSharedPreferences(final SharedPreferences prefs) {
+    // Retrieve values from SharedPreferences and assign them to variables
+    _continuegame = true;
+    _lockTester = prefs.getBool('_lockTester') ?? false;
+    _numberPlayers = prefs.getInt('_numberPlayers') ?? 0;
+    _round = prefs.getInt('_round') ?? 0;
+    _firstStarter = prefs.getInt('_firstStarter') ?? 0;
+    _fashBoard = prefs.getStringList('_fashBoard') ?? [];
+    _libBoard = prefs.getStringList('_libBoard') ?? [];
+    _topThreeSeen = prefs.getBool('_topThreeSeen') ?? false;
+    _chaos = prefs.getBool('_chaos') ?? false;
+    _isHitlerAlive = prefs.getBool('_isHitlerAlive') ?? false;
+    _names = prefs.getStringList('_names') ?? [];
+    _roles = prefs.getStringList('_roles') ?? [];
+    _dec = prefs.getStringList('_dec') ?? [];
+    _disDec = prefs.getStringList('_disDec') ?? [];
+    _state = prefs.getString('_state') ?? '';
+    _numberRejected = prefs.getInt('_numberRejected') ?? 0;
+    _lastChancellor = prefs.getString('_lastChancellor') ?? '';
+    _lastPresident = prefs.getString('_lastPresident') ?? '';
+    _turn = prefs.getInt('_turn') ?? 0;
+    _killedturns = (prefs.getStringList('_killedturns') ?? []).map((e) => int.parse(e)).toList();
+    _chancellorList = prefs.getStringList('_chancellorList') ?? [];
+    _selectedChancellor = prefs.getString('_selectedChancellor') ?? '';
+    _presidentSelected = prefs.getInt('_presidentSelected') ?? -1;
+    _chancellorSelected = prefs.getInt('_chancellorSelected') ?? -1;
+    _log = prefs.getString('_log') ?? '';
+    _hitlerState = prefs.getBool('_hitlerState') ?? false;
+    _hitlerChancellor = prefs.getBool('_hitlerChancellor') ?? false;
+    _willSearch = prefs.getString('_willSearch') ?? '';
+    _willPresident = prefs.getString('_willPresident') ?? '';
+    _willKilled = prefs.getString('_willKilled') ?? '';
+    _special = prefs.getBool('_special') ?? false;
+    _veto = prefs.getBool('_veto') ?? false;
+    _possibleVeto = prefs.getBool('_possibleVeto') ?? false;
+    _hide = prefs.getBool('_hide') ?? false;
+    _specialEffect = prefs.getInt('_specialEffect') ?? 0;
+  }
 
-  //
-  // void incrementCounter() {
-  //   _counter++;
-  //   notifyListeners();
-  // }
+
+
+  void updateSharedPreferences(final SharedPreferences prefs){
+    prefs.setBool('hasGame',true);
+    prefs.setBool('_lockTester', _lockTester);
+    prefs.setInt('_numberPlayers',_numberPlayers);
+    prefs.setInt('_round',_round);
+    prefs.setInt('_firstStarter',_firstStarter);
+    prefs.setStringList('_fashBoard', _fashBoard);
+    prefs.setStringList('_libBoard', _libBoard);
+    prefs.setBool('_topThreeSeen',_topThreeSeen);
+    prefs.setBool('_chaos',_chaos);
+    prefs.setBool('_isHitlerAlive',_isHitlerAlive);
+    prefs.setStringList('_names', _names);
+    prefs.setStringList('_roles', _roles);
+    prefs.setStringList('_dec', _dec);
+    prefs.setStringList('_disDec', _disDec);
+    prefs.setString('_state', _state);
+    prefs.setInt('_numberRejected', _numberRejected);
+    prefs.setString('_lastChancellor', _lastChancellor);
+    prefs.setString('_lastPresident', _lastPresident);
+    prefs.setInt('_turn', _turn);
+    prefs.setStringList('_killedturns', _killedturns.map((e) => e.toString()).toList());
+    // List<List<String>> _governments=[];
+    prefs.setStringList('_chancellorList',_chancellorList);
+    prefs.setString('_selectedChancellor',_selectedChancellor);
+    prefs.setInt('_presidentSelected',_presidentSelected);
+    prefs.setInt('_chancellorSelected',_chancellorSelected);
+    prefs.setString('_log',_log);
+    prefs.setBool('_hitlerState',_hitlerState);
+    prefs.setBool('_hitlerChancellor',_hitlerChancellor);
+    prefs.setString('_willSearch',_willSearch);
+    prefs.setString('_willPresident',_willPresident);
+    prefs.setString('_willKilled',_willKilled);
+    prefs.setBool('_special',_special);
+    prefs.setBool('_veto',_veto);
+    prefs.setBool('_possibleVeto',_possibleVeto);
+    prefs.setBool('_hide',_hide);
+    prefs.setInt('_specialEffect',_specialEffect);
+
+  }
+
+
 }

@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:provider/provider.dart';
 import 'package:secret_hitler/state_management.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:secret_hitler/gameUI.dart';
 
 void main() {
   // runApp(const MyApp());
@@ -61,6 +62,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+  late SharedPreferences loadedPrefs;
   late Future<bool> _hasGame;
 
   @override
@@ -68,6 +70,7 @@ class _HomeState extends State<Home> {
     // TODO: implement initState
     super.initState();
     _hasGame = _prefs.then((SharedPreferences prefs) {
+      loadedPrefs=prefs;
       return prefs.getBool('hasGame') ?? false;
     });
   }
@@ -97,6 +100,42 @@ class _HomeState extends State<Home> {
               ),
 
             ),
+            FutureBuilder<bool>(
+              future: _hasGame,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  // While the future is still resolving
+                  return CircularProgressIndicator();
+                } else if (snapshot.hasError) {
+                  // If there's an error with the future
+                  return Text('Error: ${snapshot.error}');
+                } else if (snapshot.data == true) {
+                  // If _hasGame is true, show this button
+                  return SizedBox(
+                    width: width * 0.6,
+                    height: 50,
+                    child: ElevatedButton(
+                      style: style,
+                      onPressed: () {
+                        GameState gameState = Provider.of<GameState>(context,listen: false);
+                        gameState.loadSharedPreferences(loadedPrefs);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  Game(name: gameState.names,roles:gameState.roles)),
+                        );
+                      },
+                      child: const Text('Continue previous game'),
+                    ),
+                  );
+                } else {
+                  // If _hasGame is false or null, show null
+                  return SizedBox.shrink();
+                }
+              },
+            ),
+            SizedBox(height: 20,),
             SizedBox(
               width: width*0.6,
               height: 50,

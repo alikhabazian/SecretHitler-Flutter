@@ -19,7 +19,6 @@ class GameSetting extends StatefulWidget {
 }
 
 class _GameSetting extends State<GameSetting> {
-  int _counter = 0;
   int _numPlayers = 5;
   List<TextEditingController> playerNameController = [];
   List<Widget> playerWidgets = [];
