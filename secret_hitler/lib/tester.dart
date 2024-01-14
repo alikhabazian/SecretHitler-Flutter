@@ -39,7 +39,7 @@ class GameTester {
       Random random = Random();
       int index = random.nextInt(2);
       gameState.changeChancellorSelect(index);
-      if(gameState.possibleVeto &&(gameState.roles[gameState.turn]=='lib') && (gameState.roles[gameState.names.indexOf(gameState.selectedChancellor)]=='lib')) {
+      if(gameState.possibleVeto &&(gameState.players[gameState.turn].role=='lib') && (gameState.findPlayerWithName(gameState.selectedChancellor).role=='lib')) {
         Future.delayed(Duration(seconds: 2),() {
           gameState.changeLockTester(false);
           vetoOnPressed(gameState);

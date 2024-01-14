@@ -6,13 +6,8 @@ void showRoleDialog(BuildContext context,GameState game_state) {
     context: context,
     barrierDismissible:false,
     builder: (BuildContext context) {
-      String rool='';
-      if (game_state.roles[game_state.names.indexOf(game_state.willSearch)]=='Liberal'){
-        rool='Liberal';
-      }
-      else{
-        rool='Fascist';
-      }
+      String role=game_state.findPlayerWithName(game_state.willSearch).searchResult();
+
       return AlertDialog(
         title: const Text('Message'),
         // content: Text("You investigated ${name}, and their role is ${role}."),
@@ -23,7 +18,7 @@ void showRoleDialog(BuildContext context,GameState game_state) {
               const TextSpan(text: 'You investigated '),
               TextSpan(text: game_state.willSearch, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
               const TextSpan(text: ' and their role is '),
-              TextSpan(text: '$rool.', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+              TextSpan(text: '$role.', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
 
             ],
           ),
@@ -44,12 +39,12 @@ void showRoleDialog(BuildContext context,GameState game_state) {
 
 void onPressedSuccessElection(BuildContext context,String name,GameState game_state) {
   // first_selected=true;
-  if(game_state.veto && game_state.roles[game_state.names.indexOf(name)]=='Liberal' && game_state.roles[game_state.turn]=='Liberal'){
+  if(game_state.veto && game_state.findPlayerWithName(name).role=='Liberal' && game_state.players[game_state.turn].role=='Liberal'){
      game_state.activateVeto();
   }
   game_state.changeState('elected');
   game_state.changePresidentSelected(-1);
-  if(game_state.roles[game_state.names.indexOf(name)]=='Hitler'&& game_state.hitlerState){
+  if(game_state.findPlayerWithName(name).role=='Hitler'&& game_state.hitlerState){
     game_state.hitlerChancellor();
   }
 

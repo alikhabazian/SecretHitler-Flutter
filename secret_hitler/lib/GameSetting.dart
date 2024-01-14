@@ -22,7 +22,11 @@ class _GameSetting extends State<GameSetting> {
   int _numPlayers = 5;
   List<TextEditingController> playerNameController = [];
   List<Widget> playerWidgets = [];
+  List<Widget> expantionSetting = [];
   bool first_time=true;
+  bool isCheckedLibPlus=false;
+  bool isCheckedFascistPlus=false;
+
 
   void _incrementPlayers() {
     setState(() {
@@ -85,13 +89,13 @@ class _GameSetting extends State<GameSetting> {
     });
   }
 
-  void _setUp() {}
 
 
   @override
   Widget build(BuildContext context) {
     // playerNameController = [];
     playerWidgets = [];
+
     if (first_time){
       for (int i = 0; i < _numPlayers; i++) {
         playerNameController.add(new TextEditingController());
@@ -146,6 +150,42 @@ class _GameSetting extends State<GameSetting> {
           )
       );
       playerWidgets.add(SizedBox(height: 16.0));
+    }
+
+    expantionSetting = [];
+    if (_numPlayers==7||_numPlayers==9){//Liberal plus
+      Widget libPlusWidget=Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Checkbox(
+            value: isCheckedLibPlus,
+            onChanged: (bool? value) {
+              setState(() {
+                isCheckedLibPlus = value ?? false;
+              });
+            },
+          ),
+          Text('Liberal plus'),
+        ],
+      );
+      expantionSetting.add(libPlusWidget);
+    }
+    if (_numPlayers==8||_numPlayers==10){//Fascist Plus
+      Widget fascistPlusWidget=Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Checkbox(
+            value: isCheckedFascistPlus,
+            onChanged: (bool? value) {
+              setState(() {
+                isCheckedFascistPlus = value ?? false;
+              });
+            },
+          ),
+          Text('Fascist plus'),
+        ],
+      );
+      expantionSetting.add(fascistPlusWidget);
     }
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
@@ -227,7 +267,8 @@ class _GameSetting extends State<GameSetting> {
 
                 ],
               ),
-            ]+playerWidgets,
+
+            ]+expantionSetting+playerWidgets,
           ),
         ),),
       floatingActionButton: FloatingActionButton(

@@ -22,7 +22,7 @@ class _Game extends State<Game> {
   late GameState gameState;
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
-  bool activeTester=false;
+  bool activeTester=true;
   // bool hide = false;
 
 
