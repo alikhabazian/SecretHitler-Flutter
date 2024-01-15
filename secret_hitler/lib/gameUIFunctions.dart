@@ -158,10 +158,11 @@ void discardChancellor(GameState game_state){
 }
 
 void discardPresident(GameState game_state){
-  game_state.changeLastPresident(game_state.names[game_state.turn]);
+  // game_state.changeLastPresident(game_state.names[game_state.turn]);
+  game_state.changeLastPresident(game_state.players[game_state.turn].name);
   game_state.changeState('president_discarded');
   game_state.changeChancellorSelect(-1);
-  game_state.addLog("${game_state.names[game_state.turn]} discard:${game_state.dec[game_state.presidentSelected]}\n");
+  game_state.addLog("${game_state.players[game_state.turn].name} discard:${game_state.dec[game_state.presidentSelected]}\n");
   game_state.disDec.add(game_state.dec.removeAt(game_state.presidentSelected));
   game_state.updatePage();
 }
@@ -194,7 +195,7 @@ List <Widget> getUiState(context,width,height,GameState game_state){
                 TextSpan(text: 'Round '),
                 TextSpan(text: '${game_state.round}', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
                 TextSpan(text: ' has begun.\n'),
-                TextSpan(text: '${game_state.names[game_state.turn]},',style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28)),
+                TextSpan(text: '${game_state.players[game_state.turn].name},',style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28)),
                 TextSpan(text: ' select your Chancellor for the upcoming election.'),
               ],
             ),
@@ -255,7 +256,7 @@ List <Widget> getUiState(context,width,height,GameState game_state){
             text: TextSpan(
               style:TextStyle(color:Colors.black,fontSize: 15),
               children: <TextSpan>[
-                TextSpan(text: '${game_state.names[game_state.turn]},', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
+                TextSpan(text: '${game_state.players[game_state.turn].name},', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
                 TextSpan(text: ' in your esteemed role as the'),
                 TextSpan(text: ' President,',style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
                 TextSpan(text: ' please select a policy card to be discarded.'),
@@ -469,7 +470,7 @@ List <Widget> getUiState(context,width,height,GameState game_state){
             text: TextSpan(
               style:TextStyle(color:Colors.black,fontSize: 20),
               children: <TextSpan>[
-                TextSpan(text: '${game_state.names[game_state.turn]},', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28)),
+                TextSpan(text: '${game_state.players[game_state.turn].name},', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28)),
                 TextSpan(text: ' as the '),
                 TextSpan(text: 'President,',style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
                 TextSpan(text: ' you may now privately reveal the top three  policy cards.'),
@@ -530,7 +531,7 @@ List <Widget> getUiState(context,width,height,GameState game_state){
             text: TextSpan(
               style:TextStyle(color:Colors.black),
               children: <TextSpan>[
-                TextSpan(text: '${game_state.names[game_state.turn]}, as the President,', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                TextSpan(text: '${game_state.players[game_state.turn].name}, as the President,', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
                 TextSpan(text: " when you're ready, you have the option to eliminate a person. Removing Hitler would lead to a victory for the Liberals.\n"),
                 if(game_state.state=='kill_veto') TextSpan(text: "When both the President and Chancellor, both loyal to the Liberals, concur, the Veto option becomes viable."),
               ],
@@ -598,7 +599,7 @@ List <Widget> getUiState(context,width,height,GameState game_state){
             text: TextSpan(
               style:TextStyle(color:Colors.black,fontSize: 20),
               children: <TextSpan>[
-                TextSpan(text: '${game_state.names[game_state.turn]}, as the President,', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
+                TextSpan(text: '${game_state.players[game_state.turn].name}, as the President,', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
                 TextSpan(text: ' you have the power to investigate the role of a person, whether they be a Fascist or a Liberal.'),
 
               ],
@@ -664,7 +665,7 @@ List <Widget> getUiState(context,width,height,GameState game_state){
             text: TextSpan(
               style:TextStyle(color:Colors.black, fontSize: 20),
               children: <TextSpan>[
-                TextSpan(text: '${game_state.names[game_state.turn]}, as the President,', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
+                TextSpan(text: '${game_state.players[game_state.turn].name}, as the President,', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
                 TextSpan(text: 'you have the honor of selecting the next president!'),
               ],
             ),

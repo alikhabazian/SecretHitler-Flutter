@@ -4,9 +4,47 @@ import 'dart:math';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
+
+bool toBoolean(String str, [bool strict = false]) {
+  if (strict == true) {
+    return str == '1' || str == 'true';
+  }
+  return str != '0' && str != 'false' && str != '';
+}
+
+class Player{
+  String name='';
+  String role='';
+  bool killed=false;
+  List<String> additionalInfo=[];
+
+  Player({required this.name,required this.role,this.killed = false});
+
+  String searchResult(){
+    if (role=='Liberal' || additionalInfo.contains('FascistPlus')){
+      return 'Liberal';
+    }
+    else{
+      return 'Fascist';
+    }
+  }
+  void addAdditionalInfo(String info){
+    additionalInfo.add(info);
+  }
+
+  @override
+  String toString() {
+    return 'Player(${name},${role},${killed?'killed':'alive'},${additionalInfo})';
+  }
+}
+
+
 class GameState extends ChangeNotifier {
   bool _continuegame=false;
   bool _lockTester=false;
+
+  String _gameType='Normal';
+  List<String> _playerNames=[];
 
   int _numberPlayers=0;
   // int _numberPlayersInitial=0;
@@ -17,8 +55,10 @@ class GameState extends ChangeNotifier {
   bool _topThreeSeen=false;
   bool _chaos = false;
   bool _isHitlerAlive=true;
-  List<String> _names=[];
-  List<String> _roles=[];
+
+  List<Player> _players=[];
+
+
   List<String> _dec=[];
   List<String> _disDec=[];
   String _state='';
@@ -26,7 +66,6 @@ class GameState extends ChangeNotifier {
   String _lastChancellor='';
   String _lastPresident='';
   int _turn=0;
-  List<int> _killedturns=[];
   List<List<String>> _governments=[];
   List<String> _chancellorList=[];
   String _selectedChancellor='';
@@ -71,12 +110,13 @@ class GameState extends ChangeNotifier {
   int get numberRejected=>_numberRejected;
   String get selectedChancellor => _selectedChancellor;
   int get round=>_round;
-  List<String>get names=>_names;
+  // List<String>get names=>_names;
+  List<Player>get players=>_players;
   int get turn=>_turn;
   List<String> get chancellorList=> _chancellorList;
   bool get veto =>_veto;
   bool get continuegame =>_continuegame;
-  List<String> get roles=>_roles;
+  // List<String> get roles=>_roles;
   // bool get chaos =>_chaos;
   List<String> get dec=>_dec;
   int get presidentSelected =>_presidentSelected;
@@ -90,6 +130,8 @@ class GameState extends ChangeNotifier {
   String get willresident =>_willPresident;
   bool get special =>_special;
   bool get lockTester =>_lockTester;
+  String get gameType =>_gameType;
+  List<String> get playerNames=> _playerNames;
 
   void changeLockTester(bool value){
     _lockTester=value;
@@ -112,11 +154,16 @@ class GameState extends ChangeNotifier {
     // if(_firstStarter+_round/_numberPlayers>=1){
     //   _firstStarter=((_firstStarter+_round)%_numberPlayers)-_round;
     // }
-    var index=_names.indexOf(_willKilled);
-    if(_roles[index]=='Hitler'){
+
+    // var index=_names.indexOf(_willKilled);
+    Player eliminatedPlayer=_players.lastWhere((player){
+      return player.name==_willKilled;
+    });
+    if(eliminatedPlayer.role=='Hitler'){
       _isHitlerAlive=false;
     }
-    _killedturns.add(index);
+    // _killedturns.add(index);
+    eliminatedPlayer.killed=true;
     // _names.removeAt(index);
     // _roles.removeAt(index);
     // _numberPlayers = _names.length;
@@ -218,23 +265,228 @@ class GameState extends ChangeNotifier {
 
   void updateChancellorList(){
     _chancellorList=[];
-    for (int i = 0; i < _names.length; i++) {
-      if (i==_turn || !_chaos &&(_names[i]==_lastChancellor || (_numberPlayers>5 && _names[i]==_lastPresident))){
+    for (int i = 0; i < _players.length; i++) {
+      if (i==_turn || _players[i].killed || !_chaos &&(_players[i].name==_lastChancellor || (_numberPlayers>5 && _players[i].name==_lastPresident))){
         continue;
       }
-      _chancellorList.add(_names[i]);
+      _chancellorList.add(_players[i].name);
     }
-    _killedturns.forEach((element) {
-      _chancellorList.remove(element);
-    });
     _selectedChancellor=_chancellorList[0];
   }
 
+  void roleAssigning(List<String> names,String type){
+    int numberPlayers=names.length;
+    List<String>roles=[];
+    _players=[];
 
-  void setUp(List<String> names,List<String> roles){
+    switch (type){
+      case 'Normal':
+        int libc=0;
+        int fasc=0;
+        if(numberPlayers==5){
+          libc=3;
+          fasc=1;
+        }
+        else if(numberPlayers==6){
+          libc=4;
+          fasc=1;
+        }
+        else if(numberPlayers==7){
+          libc=4;
+          fasc=2;
+        }
+        else if(numberPlayers==8){
+          libc=5;
+          fasc=2;
+        }
+        else if(numberPlayers==9){
+          libc=5;
+          fasc=3;
+        }
+        else if(numberPlayers==10){
+          libc=6;
+          fasc=3;
+        }
+        for (int i = 0; i < libc; i++) {
+          roles.add('Liberal');
+        }
+        for (int i = 0; i < fasc; i++) {
+          roles.add('Fascist');
+        }
+        roles.add('Hitler');
+        roles=roles..shuffle();
+        break;
+      case 'LibPlus':
+        int libc=0;
+        int fasc=0;
+        if(numberPlayers==5){
+          libc=3;
+          fasc=1;
+        }
+        else if(numberPlayers==6){
+          libc=4;
+          fasc=1;
+        }
+        else if(numberPlayers==7){
+          libc=4;
+          fasc=2;
+        }
+        else if(numberPlayers==8){
+          libc=5;
+          fasc=2;
+        }
+        else if(numberPlayers==9){
+          libc=5;
+          fasc=3;
+        }
+        else if(numberPlayers==10){
+          libc=6;
+          fasc=3;
+        }
+        for (int i = 0; i < libc-1; i++) {
+          roles.add('Liberal');
+        }
+        for (int i = 0; i < fasc; i++) {
+          roles.add('Fascist');
+        }
+        roles.add('Hitler');
+        roles.add('LibPlus');
+        roles=roles..shuffle();
+
+        break;
+      case 'FascistPlus':
+        int libc=0;
+        int fasc=0;
+        if(numberPlayers==5){
+          libc=3;
+          fasc=1;
+        }
+        else if(numberPlayers==6){
+          libc=4;
+          fasc=1;
+        }
+        else if(numberPlayers==7){
+          libc=4;
+          fasc=2;
+        }
+        else if(numberPlayers==8){
+          libc=5;
+          fasc=2;
+        }
+        else if(numberPlayers==9){
+          libc=5;
+          fasc=3;
+        }
+        else if(numberPlayers==10){
+          libc=6;
+          fasc=3;
+        }
+        for (int i = 0; i < libc; i++) {
+          roles.add('Liberal');
+        }
+        for (int i = 0; i < fasc-1; i++) {
+          roles.add('Fascist');
+        }
+        roles.add('Hitler');
+        roles.add('FascistPlus');
+        roles=roles..shuffle();
+
+        break;
+
+    }
+    for (int i =0;i<names.length;i++){
+      if(roles[i]=='LibPlus'){
+        Player player=new Player(name: names[i], role: 'Liberal');
+        player.addAdditionalInfo(roles[i]);
+        _players.add(player);
+      }
+      else if(roles[i]=='FascistPlus'){
+        Player player=new Player(name: names[i], role: 'Fascist');
+        player.addAdditionalInfo(roles[i]);
+        _players.add(player);
+      }
+      else {
+        _players.add(new Player(name: names[i], role: roles[i]));
+      }
+    }
+
+
+  }
+
+  List<TextSpan> nightInfo(Player player){
+    List<TextSpan> nightInfo=[];
+    switch (_gameType) {
+      case 'LibPlus':
+      case 'Normal':
+        if(player.role=='Fascist'){
+          List<String> fascistList=[];
+          List<String> hitlerList=[];
+          for (int i = 0; i < _players.length; i++) {
+            if((_players[i].role=='Fascist') &&(player.name!=_players[i].name) ){
+              fascistList.add(_players[i].name);
+            }
+            else if(_players[i].role=='Hitler'){
+              hitlerList.add(_players[i].name);
+              }
+            else if(_gameType=='LibPlus'&&_players[i].additionalInfo.contains('LibPlus')){
+              hitlerList.add(_players[i].name);
+            }
+
+
+          }
+          nightInfo.add(TextSpan(text:'Fascist: '));
+          for(int i=0;i<fascistList.length;i++) {
+            nightInfo.add(TextSpan(text: '${fascistList[i]}\n',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)));
+          }
+          hitlerList=hitlerList..shuffle();
+          nightInfo.add(TextSpan(text:'Hitler: '));
+          for(int i=0;i<hitlerList.length;i++) {
+            nightInfo.add(TextSpan(text: '${hitlerList[i]} ',
+                style: TextStyle(fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: Colors.red)));
+            if(i+1<hitlerList.length){
+              nightInfo.add(TextSpan(text: 'or ',
+                  style: TextStyle(fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Colors.red)));
+            }
+          }
+
+
+
+
+
+
+
+
+        }
+        else if(player.role=='Hitler' && _players.length<=6){
+          for (int i = 0; i < _players.length; i++) {
+            if((_players[i].role=='Fascist') &&(player.name!=_players[i].name) ){
+              // extend=extend+'Fascist:'+widget.data[i]+'\n';
+              nightInfo.add(TextSpan(text:'Fascist: '));
+              nightInfo.add(TextSpan(text:'${_players[i].name}\n', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)));
+            }
+          }
+
+        }
+        break;
+
+    }
+
+    return nightInfo;
+
+  }
+
+  void setUp(List<String> names,{String gameType='Normal'}){
     _round=1;
-    _names=names;
-    _roles=roles;
+    _playerNames=names;
+    _gameType=gameType;
+    roleAssigning(names,gameType);
+    // _names=names;
+    // _roles=roles;
     // _numberPlayersInitial=names.length;
     _numberPlayers=names.length;
     _dec=[];
@@ -253,6 +505,8 @@ class GameState extends ChangeNotifier {
     updateChancellorList();
   }
 
+
+
   void endGame(){
     if(_libBoard.length==5 || !_isHitlerAlive){
       _state='lib win';
@@ -263,29 +517,39 @@ class GameState extends ChangeNotifier {
   }
 
   List<String> candidateList(){
-    List<String> _candidateList=[... _names];
-    _candidateList.removeAt(_turn);
-    _killedturns.forEach((element) {
-      _candidateList.remove(element);
-    });
+    // List<String> _candidateList=[... _names];
+    // _candidateList.removeAt(_turn);
+    // _killedturns.forEach((element) {
+    //   _candidateList.remove(element);
+    // });
+    List<String> _candidateList=[];
+    for(int i=0;i<_players.length;i++ ){
+      if(i!=_turn && _players[i].killed==false){
+        _candidateList.add(_players[i].name);
+      }
+    }
     return _candidateList;
   }
 
   void nextRound(){
+
 
     endGame();
     _round=_round+1;
     int killedEffect=0;
     do {
       if (_special) {
-        _turn = _names.indexOf(_willPresident);
+        _turn =_players.lastIndexWhere((player){
+          return player.name==_willPresident;
+        });
+        // _turn = _names.indexOf(_willPresident);
         _specialEffect=-1;
       }
       else {
         _turn = (_firstStarter + _round + _specialEffect + killedEffect) % _numberPlayers;
       }
       killedEffect++;
-    }while(_killedturns.contains(_turn));
+    }while(_players[_turn].killed==true);
     _special=false;
     if(_dec.length<=2){
       _dec=_dec+_disDec;
@@ -314,6 +578,13 @@ class GameState extends ChangeNotifier {
     _state='base';
   }
 
+  Player findPlayerWithName(String name){
+    return _players.lastWhere((player){
+      return player.name==name;
+    });
+
+  }
+
 
   @override
   String toString() {
@@ -322,9 +593,7 @@ class GameState extends ChangeNotifier {
     round:${_round}
     first_starter:${_firstStarter}
     number_players:${_numberPlayers}
-    playersname:${_names}
-    roles:${_roles}
-    killed_players:${_killedturns}
+    players:${_players}
     dec:${_dec}
     dis_dec:${_disDec}
     number_rejected:${_numberRejected}
@@ -339,6 +608,7 @@ class GameState extends ChangeNotifier {
   }
 
   void loadSharedPreferences(final SharedPreferences prefs) {
+    //
     // Retrieve values from SharedPreferences and assign them to variables
     _continuegame = true;
     _lockTester = prefs.getBool('_lockTester') ?? false;
@@ -350,8 +620,13 @@ class GameState extends ChangeNotifier {
     _topThreeSeen = prefs.getBool('_topThreeSeen') ?? false;
     _chaos = prefs.getBool('_chaos') ?? false;
     _isHitlerAlive = prefs.getBool('_isHitlerAlive') ?? false;
-    _names = prefs.getStringList('_names') ?? [];
-    _roles = prefs.getStringList('_roles') ?? [];
+    List<String> names = prefs.getStringList('_names') ?? [];
+    List<String> roles = prefs.getStringList('_roles') ?? [];
+    List<bool> killed = (prefs.getStringList('_killedturns') ?? []).map((e) => toBoolean(e)).toList();
+    _players=[];
+    for(int i=0;i<names.length;i++){
+      _players.add(new Player(name:names[i],role:roles[i],killed:killed[i]));
+    }
     _dec = prefs.getStringList('_dec') ?? [];
     _disDec = prefs.getStringList('_disDec') ?? [];
     _state = prefs.getString('_state') ?? '';
@@ -359,7 +634,7 @@ class GameState extends ChangeNotifier {
     _lastChancellor = prefs.getString('_lastChancellor') ?? '';
     _lastPresident = prefs.getString('_lastPresident') ?? '';
     _turn = prefs.getInt('_turn') ?? 0;
-    _killedturns = (prefs.getStringList('_killedturns') ?? []).map((e) => int.parse(e)).toList();
+
     _chancellorList = prefs.getStringList('_chancellorList') ?? [];
     _selectedChancellor = prefs.getString('_selectedChancellor') ?? '';
     _presidentSelected = prefs.getInt('_presidentSelected') ?? -1;
@@ -380,6 +655,7 @@ class GameState extends ChangeNotifier {
 
 
   void updateSharedPreferences(final SharedPreferences prefs){
+    //TODO load gametype and additionalInfo
     prefs.setBool('hasGame',true);
     prefs.setBool('_lockTester', _lockTester);
     prefs.setInt('_numberPlayers',_numberPlayers);
@@ -390,8 +666,9 @@ class GameState extends ChangeNotifier {
     prefs.setBool('_topThreeSeen',_topThreeSeen);
     prefs.setBool('_chaos',_chaos);
     prefs.setBool('_isHitlerAlive',_isHitlerAlive);
-    prefs.setStringList('_names', _names);
-    prefs.setStringList('_roles', _roles);
+    prefs.setStringList('_names',  _players.map((player) => player.name).toList());
+    prefs.setStringList('_roles',  _players.map((player) => player.role).toList());
+    prefs.setStringList('_killedturns', _players.map((player) => player.killed.toString()).toList());
     prefs.setStringList('_dec', _dec);
     prefs.setStringList('_disDec', _disDec);
     prefs.setString('_state', _state);
@@ -399,7 +676,7 @@ class GameState extends ChangeNotifier {
     prefs.setString('_lastChancellor', _lastChancellor);
     prefs.setString('_lastPresident', _lastPresident);
     prefs.setInt('_turn', _turn);
-    prefs.setStringList('_killedturns', _killedturns.map((e) => e.toString()).toList());
+
     // List<List<String>> _governments=[];
     prefs.setStringList('_chancellorList',_chancellorList);
     prefs.setString('_selectedChancellor',_selectedChancellor);

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:secret_hitler/rollassigning.dart';
+import 'package:secret_hitler/state_management.dart';
+import 'package:provider/provider.dart';
 class GameSetting extends StatefulWidget {
   const GameSetting({super.key, required this.title});
 
@@ -22,7 +24,11 @@ class _GameSetting extends State<GameSetting> {
   int _numPlayers = 5;
   List<TextEditingController> playerNameController = [];
   List<Widget> playerWidgets = [];
+  List<Widget> expantionSetting = [];
   bool first_time=true;
+  bool isCheckedLibPlus=false;
+  bool isCheckedFascistPlus=false;
+
 
   void _incrementPlayers() {
     setState(() {
@@ -62,36 +68,50 @@ class _GameSetting extends State<GameSetting> {
     );
   }
 
-  void _setPlayers() {
-    List<String> playersName = [];
-    setState(() {
-      for (int i = 0; i < _numPlayers; i++) {
-        if (playerNameController[i].text.length != 0) {
-          playersName.add(
-              playerNameController[i].text
-          );
-        } else {
-          showMessageDialog(context, 'You must fill player ${i+1} name');
-          return;
-          // break;
-        }
-
-      }
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => RollAssigning(data: playersName)),
-      );
-
-    });
+  String gameType(){
+    if(isCheckedLibPlus){
+      return 'LibPlus';
+    }
+    else if(isCheckedFascistPlus){
+      return 'FascistPlus';
+    }
+    else{
+      return 'Normal';
+    }
   }
 
-  void _setUp() {}
+  void _setPlayers() {
+    List<String> playersName = [];
+    for (int i = 0; i < _numPlayers; i++) {
+      if (playerNameController[i].text.length != 0) {
+        playersName.add(
+            playerNameController[i].text
+        );
+      } else {
+        showMessageDialog(context, 'You must fill player ${i+1} name');
+        return;
+        // break;
+      }
+
+    }
+    GameState gameState = Provider.of<GameState>(context,listen: false);
+
+    gameState.setUp(playersName,gameType:gameType());
+    setState(() {
+    });
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => RollAssigning()),
+    );
+  }
+
 
 
   @override
   Widget build(BuildContext context) {
-    // playerNameController = [];
+
     playerWidgets = [];
+
     if (first_time){
       for (int i = 0; i < _numPlayers; i++) {
         playerNameController.add(new TextEditingController());
@@ -146,6 +166,45 @@ class _GameSetting extends State<GameSetting> {
           )
       );
       playerWidgets.add(SizedBox(height: 16.0));
+    }
+
+    expantionSetting = [];
+    if (_numPlayers==7||_numPlayers==9){//Liberal plus
+      Widget libPlusWidget=Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Radio(
+            value:true,
+            groupValue: isCheckedLibPlus,
+            onChanged: (bool? value) {
+              setState(() {
+                isCheckedLibPlus = value ?? false;
+              });
+            },
+          ),
+          Text('Liberal plus'),
+        ],
+      );
+      expantionSetting.add(libPlusWidget);
+    }
+    if (_numPlayers==8||_numPlayers==10){//Fascist Plus
+      Widget fascistPlusWidget=Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Radio(
+            value:true,
+            groupValue: isCheckedFascistPlus,
+            onChanged: (bool? value) {
+              setState(() {
+                isCheckedFascistPlus = value ?? false;
+
+              });
+            },
+          ),
+          Text('Fascist plus'),
+        ],
+      );
+      expantionSetting.add(fascistPlusWidget);
     }
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
@@ -227,7 +286,8 @@ class _GameSetting extends State<GameSetting> {
 
                 ],
               ),
-            ]+playerWidgets,
+
+            ]+expantionSetting+playerWidgets,
           ),
         ),),
       floatingActionButton: FloatingActionButton(

@@ -10,10 +10,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 
 class Game extends StatefulWidget {
-  final List<String> name;
-  final List<String> roles;
 
-  const Game({Key? key, required this.name, required this.roles}) : super(key: key);
+  const Game({Key? key}) : super(key: key);
 
   @override
   _Game createState() => _Game();
@@ -32,9 +30,9 @@ class _Game extends State<Game> {
     print("initState");
     gameState = Provider.of<GameState>(context,listen: false);
     // game_state = Game_state(names: widget.name, roles: widget.roles);
-    if(!gameState.continuegame) {
-      gameState.setUp(widget.name, widget.roles);
-    }
+    // if(!gameState.continuegame) {
+    //   gameState.setUp(widget.name);
+    // }
     print("initState after setUp");
     super.initState();
     _prefs.then((SharedPreferences prefs) {
