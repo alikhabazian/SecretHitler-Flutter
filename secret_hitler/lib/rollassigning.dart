@@ -1,39 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:secret_hitler/gameUI.dart';
-import 'dart:convert';
-class RollAssigning extends StatefulWidget {
-  final List<String> data;
+import 'package:secret_hitler/state_management.dart';
+import 'package:provider/provider.dart';
 
-  const RollAssigning({Key? key, required this.data}) : super(key: key);
+class RollAssigning extends StatefulWidget {
+
+
+  const RollAssigning({Key? key}) : super(key: key);
 
   @override
   _RollAssigning createState() => _RollAssigning();
 }
 
 class _RollAssigning extends State<RollAssigning> {
-  List<String> roles=[];
   List<bool> seen = [];
+  late GameState gameState;
 
   @override
   initState() {
-    int number_players=widget.data.length;
+    gameState = Provider.of<GameState>(context,listen: false);
+    gameState.roleAssigning(gameState.playerNames, gameState.gameType);
+    int number_players=gameState.players.length;
     seen = [];
     for (int i = 0; i < number_players; i++) {
       seen.add(false);
     }
 
-    int libc=(number_players/2).floor()+1;
-    int fasc=number_players-libc-1;
-    roles=[];
-    for (int i = 0; i < libc; i++) {
-      roles.add('Liberal');
-    }
-    for (int i = 0; i < fasc; i++) {
-      roles.add('Fascist');
-    }
-    roles.add('Hitler');
-    roles=roles..shuffle();
-    // print(roles);
     setState(() { });
   }
 
@@ -110,7 +102,7 @@ class _RollAssigning extends State<RollAssigning> {
 
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => Game(name: widget.data,roles:roles)),
+        MaterialPageRoute(builder: (context) => Game()),
       );
 
   }
@@ -119,7 +111,6 @@ class _RollAssigning extends State<RollAssigning> {
   @override
   Widget build(BuildContext context) {
     print(seen);
-    print(roles);
     bool every_one_know_his_role=false;
     every_one_know_his_role=seen.every((value)=>value==true);
 
@@ -141,36 +132,14 @@ class _RollAssigning extends State<RollAssigning> {
         // child: Text(widget.data.toString()),
         children:<Widget>[
           SizedBox(height: 16.0),
-          ]+widget.data.asMap().entries.map((entry)=>
+          ]+gameState.players.asMap().entries.map((entry)=>
             GestureDetector(
             onTap: seen[entry.key] ?null:(){
-              List<TextSpan> extend=[];
-              if(roles[entry.key]=='Fascist'){
-                for (int i = 0; i < widget.data.length; i++) {
-                  if((roles[i]=='Fascist') &&(i!=entry.key) ){
-                    extend.add(TextSpan(text:'Fascist: '));
-                    extend.add(TextSpan(text:'${widget.data[i]}\n', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)));
-                  }
-                  else if(roles[i]=='Hitler'){
-                    // extend=extend+'Hitler:'+widget.data[i]+'\n';
-                    extend.add(TextSpan(text:'Hitler: '));
-                    extend.add(TextSpan(text:'${widget.data[i]}\n', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16,color:Colors.red)));
-                  }
-                }
-              }
-              else if(roles[entry.key]=='Hitler' && roles.length<=6){
-                for (int i = 0; i < widget.data.length; i++) {
-                  if((roles[i]=='Fascist') &&(i!=entry.key) ){
-                    // extend=extend+'Fascist:'+widget.data[i]+'\n';
-                    extend.add(TextSpan(text:'Fascist: '));
-                    extend.add(TextSpan(text:'${widget.data[i]}\n', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)));
-                  }
-                }
-
-              }
+              List<TextSpan> extend=gameState.nightInfo(entry.value);
 
 
-              showMessageDialog(context,entry.key, entry.value,roles[entry.key],extend);
+
+              showMessageDialog(context,entry.key, entry.value.name,entry.value.role,extend);
             },
             child:Card(
               color:seen[entry.key]?Colors.grey[300]:Colors.white,
@@ -181,7 +150,7 @@ class _RollAssigning extends State<RollAssigning> {
                 child:Center(
                   child:Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                    children:[Text(entry.value)]
+                    children:[Text(entry.value.name)]
                   )
                 ),
               ),

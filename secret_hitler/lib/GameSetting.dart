@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:secret_hitler/rollassigning.dart';
+import 'package:secret_hitler/state_management.dart';
+import 'package:provider/provider.dart';
 class GameSetting extends StatefulWidget {
   const GameSetting({super.key, required this.title});
 
@@ -66,34 +68,48 @@ class _GameSetting extends State<GameSetting> {
     );
   }
 
+  String gameType(){
+    if(isCheckedLibPlus){
+      return 'LibPlus';
+    }
+    else if(isCheckedFascistPlus){
+      return 'FascistPlus';
+    }
+    else{
+      return 'Normal';
+    }
+  }
+
   void _setPlayers() {
     List<String> playersName = [];
-    setState(() {
-      for (int i = 0; i < _numPlayers; i++) {
-        if (playerNameController[i].text.length != 0) {
-          playersName.add(
-              playerNameController[i].text
-          );
-        } else {
-          showMessageDialog(context, 'You must fill player ${i+1} name');
-          return;
-          // break;
-        }
-
+    for (int i = 0; i < _numPlayers; i++) {
+      if (playerNameController[i].text.length != 0) {
+        playersName.add(
+            playerNameController[i].text
+        );
+      } else {
+        showMessageDialog(context, 'You must fill player ${i+1} name');
+        return;
+        // break;
       }
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => RollAssigning(data: playersName)),
-      );
 
+    }
+    GameState gameState = Provider.of<GameState>(context,listen: false);
+
+    gameState.setUp(playersName,gameType:gameType());
+    setState(() {
     });
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => RollAssigning()),
+    );
   }
 
 
 
   @override
   Widget build(BuildContext context) {
-    // playerNameController = [];
+
     playerWidgets = [];
 
     if (first_time){
@@ -157,8 +173,9 @@ class _GameSetting extends State<GameSetting> {
       Widget libPlusWidget=Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Checkbox(
-            value: isCheckedLibPlus,
+          Radio(
+            value:true,
+            groupValue: isCheckedLibPlus,
             onChanged: (bool? value) {
               setState(() {
                 isCheckedLibPlus = value ?? false;
@@ -174,11 +191,13 @@ class _GameSetting extends State<GameSetting> {
       Widget fascistPlusWidget=Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Checkbox(
-            value: isCheckedFascistPlus,
+          Radio(
+            value:true,
+            groupValue: isCheckedFascistPlus,
             onChanged: (bool? value) {
               setState(() {
                 isCheckedFascistPlus = value ?? false;
+
               });
             },
           ),

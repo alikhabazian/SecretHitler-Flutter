@@ -123,7 +123,7 @@ class _HomeState extends State<Home> {
                           context,
                           MaterialPageRoute(
                               builder: (context) =>
-                                  Game(name: gameState.players.map((e) => e.name).toList(),roles:gameState.players.map((e) => e.role).toList())),
+                                  Game()),
                         );
                       },
                       child: const Text('Continue previous game'),

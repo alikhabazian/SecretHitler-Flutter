@@ -16,21 +16,25 @@ class Player{
   String name='';
   String role='';
   bool killed=false;
+  List<String> additionalInfo=[];
 
   Player({required this.name,required this.role,this.killed = false});
 
   String searchResult(){
-    if (role=='Liberal'){
+    if (role=='Liberal' || additionalInfo.contains('FascistPlus')){
       return 'Liberal';
     }
     else{
       return 'Fascist';
     }
   }
+  void addAdditionalInfo(String info){
+    additionalInfo.add(info);
+  }
 
   @override
   String toString() {
-    return 'Player(${name},${role},${killed?'killed':'alive'})';
+    return 'Player(${name},${role},${killed?'killed':'alive'},${additionalInfo})';
   }
 }
 
@@ -38,6 +42,9 @@ class Player{
 class GameState extends ChangeNotifier {
   bool _continuegame=false;
   bool _lockTester=false;
+
+  String _gameType='Normal';
+  List<String> _playerNames=[];
 
   int _numberPlayers=0;
   // int _numberPlayersInitial=0;
@@ -123,6 +130,8 @@ class GameState extends ChangeNotifier {
   String get willresident =>_willPresident;
   bool get special =>_special;
   bool get lockTester =>_lockTester;
+  String get gameType =>_gameType;
+  List<String> get playerNames=> _playerNames;
 
   void changeLockTester(bool value){
     _lockTester=value;
@@ -265,12 +274,217 @@ class GameState extends ChangeNotifier {
     _selectedChancellor=_chancellorList[0];
   }
 
+  void roleAssigning(List<String> names,String type){
+    int numberPlayers=names.length;
+    List<String>roles=[];
+    _players=[];
 
-  void setUp(List<String> names,List<String> roles){
-    _round=1;
-    for (int i =0;i<names.length;i++){
-      _players.add(new Player(name:names[i],role:roles[i]));
+    switch (type){
+      case 'Normal':
+        int libc=0;
+        int fasc=0;
+        if(numberPlayers==5){
+          libc=3;
+          fasc=1;
+        }
+        else if(numberPlayers==6){
+          libc=4;
+          fasc=1;
+        }
+        else if(numberPlayers==7){
+          libc=4;
+          fasc=2;
+        }
+        else if(numberPlayers==8){
+          libc=5;
+          fasc=2;
+        }
+        else if(numberPlayers==9){
+          libc=5;
+          fasc=3;
+        }
+        else if(numberPlayers==10){
+          libc=6;
+          fasc=3;
+        }
+        for (int i = 0; i < libc; i++) {
+          roles.add('Liberal');
+        }
+        for (int i = 0; i < fasc; i++) {
+          roles.add('Fascist');
+        }
+        roles.add('Hitler');
+        roles=roles..shuffle();
+        break;
+      case 'LibPlus':
+        int libc=0;
+        int fasc=0;
+        if(numberPlayers==5){
+          libc=3;
+          fasc=1;
+        }
+        else if(numberPlayers==6){
+          libc=4;
+          fasc=1;
+        }
+        else if(numberPlayers==7){
+          libc=4;
+          fasc=2;
+        }
+        else if(numberPlayers==8){
+          libc=5;
+          fasc=2;
+        }
+        else if(numberPlayers==9){
+          libc=5;
+          fasc=3;
+        }
+        else if(numberPlayers==10){
+          libc=6;
+          fasc=3;
+        }
+        for (int i = 0; i < libc-1; i++) {
+          roles.add('Liberal');
+        }
+        for (int i = 0; i < fasc; i++) {
+          roles.add('Fascist');
+        }
+        roles.add('Hitler');
+        roles.add('LibPlus');
+        roles=roles..shuffle();
+
+        break;
+      case 'FascistPlus':
+        int libc=0;
+        int fasc=0;
+        if(numberPlayers==5){
+          libc=3;
+          fasc=1;
+        }
+        else if(numberPlayers==6){
+          libc=4;
+          fasc=1;
+        }
+        else if(numberPlayers==7){
+          libc=4;
+          fasc=2;
+        }
+        else if(numberPlayers==8){
+          libc=5;
+          fasc=2;
+        }
+        else if(numberPlayers==9){
+          libc=5;
+          fasc=3;
+        }
+        else if(numberPlayers==10){
+          libc=6;
+          fasc=3;
+        }
+        for (int i = 0; i < libc; i++) {
+          roles.add('Liberal');
+        }
+        for (int i = 0; i < fasc-1; i++) {
+          roles.add('Fascist');
+        }
+        roles.add('Hitler');
+        roles.add('FascistPlus');
+        roles=roles..shuffle();
+
+        break;
+
     }
+    for (int i =0;i<names.length;i++){
+      if(roles[i]=='LibPlus'){
+        Player player=new Player(name: names[i], role: 'Liberal');
+        player.addAdditionalInfo(roles[i]);
+        _players.add(player);
+      }
+      else if(roles[i]=='FascistPlus'){
+        Player player=new Player(name: names[i], role: 'Fascist');
+        player.addAdditionalInfo(roles[i]);
+        _players.add(player);
+      }
+      else {
+        _players.add(new Player(name: names[i], role: roles[i]));
+      }
+    }
+
+
+  }
+
+  List<TextSpan> nightInfo(Player player){
+    List<TextSpan> nightInfo=[];
+    switch (_gameType) {
+      case 'LibPlus':
+      case 'Normal':
+        if(player.role=='Fascist'){
+          List<String> fascistList=[];
+          List<String> hitlerList=[];
+          for (int i = 0; i < _players.length; i++) {
+            if((_players[i].role=='Fascist') &&(player.name!=_players[i].name) ){
+              fascistList.add(_players[i].name);
+            }
+            else if(_players[i].role=='Hitler'){
+              hitlerList.add(_players[i].name);
+              }
+            else if(_gameType=='LibPlus'&&_players[i].additionalInfo.contains('LibPlus')){
+              hitlerList.add(_players[i].name);
+            }
+
+
+          }
+          nightInfo.add(TextSpan(text:'Fascist: '));
+          for(int i=0;i<fascistList.length;i++) {
+            nightInfo.add(TextSpan(text: '${fascistList[i]}\n',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)));
+          }
+          hitlerList=hitlerList..shuffle();
+          nightInfo.add(TextSpan(text:'Hitler: '));
+          for(int i=0;i<hitlerList.length;i++) {
+            nightInfo.add(TextSpan(text: '${hitlerList[i]} ',
+                style: TextStyle(fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: Colors.red)));
+            if(i+1<hitlerList.length){
+              nightInfo.add(TextSpan(text: 'or ',
+                  style: TextStyle(fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Colors.red)));
+            }
+          }
+
+
+
+
+
+
+
+
+        }
+        else if(player.role=='Hitler' && _players.length<=6){
+          for (int i = 0; i < _players.length; i++) {
+            if((_players[i].role=='Fascist') &&(player.name!=_players[i].name) ){
+              // extend=extend+'Fascist:'+widget.data[i]+'\n';
+              nightInfo.add(TextSpan(text:'Fascist: '));
+              nightInfo.add(TextSpan(text:'${_players[i].name}\n', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)));
+            }
+          }
+
+        }
+        break;
+
+    }
+
+    return nightInfo;
+
+  }
+
+  void setUp(List<String> names,{String gameType='Normal'}){
+    _round=1;
+    _playerNames=names;
+    _gameType=gameType;
+    roleAssigning(names,gameType);
     // _names=names;
     // _roles=roles;
     // _numberPlayersInitial=names.length;
@@ -290,6 +504,8 @@ class GameState extends ChangeNotifier {
     _turn=(_firstStarter+_round)%_numberPlayers;
     updateChancellorList();
   }
+
+
 
   void endGame(){
     if(_libBoard.length==5 || !_isHitlerAlive){
@@ -392,6 +608,7 @@ class GameState extends ChangeNotifier {
   }
 
   void loadSharedPreferences(final SharedPreferences prefs) {
+    //
     // Retrieve values from SharedPreferences and assign them to variables
     _continuegame = true;
     _lockTester = prefs.getBool('_lockTester') ?? false;
@@ -438,6 +655,7 @@ class GameState extends ChangeNotifier {
 
 
   void updateSharedPreferences(final SharedPreferences prefs){
+    //TODO load gametype and additionalInfo
     prefs.setBool('hasGame',true);
     prefs.setBool('_lockTester', _lockTester);
     prefs.setInt('_numberPlayers',_numberPlayers);
