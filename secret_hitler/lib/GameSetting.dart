@@ -174,7 +174,7 @@ class _GameSetting extends State<GameSetting> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Radio(
-            value:true,
+            value:!isCheckedLibPlus,
             groupValue: isCheckedLibPlus,
             onChanged: (bool? value) {
               setState(() {
@@ -191,12 +191,13 @@ class _GameSetting extends State<GameSetting> {
       Widget fascistPlusWidget=Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Radio(
-            value:true,
-            groupValue: isCheckedFascistPlus,
+          Checkbox(
+
+            value:isCheckedFascistPlus,
+
             onChanged: (bool? value) {
               setState(() {
-                isCheckedFascistPlus = value ?? false;
+                isCheckedFascistPlus =  !isCheckedFascistPlus;
 
               });
             },

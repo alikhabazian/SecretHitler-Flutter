@@ -138,8 +138,16 @@ class _RollAssigning extends State<RollAssigning> {
               List<TextSpan> extend=gameState.nightInfo(entry.value);
 
 
-
-              showMessageDialog(context,entry.key, entry.value.name,entry.value.role,extend);
+              if(entry.value.additionalInfo.contains('FascistPlus')||entry.value.additionalInfo.contains('LibPlus')) {
+                showMessageDialog(
+                    context, entry.key,  entry.value.name, entry.value.additionalInfo[0],
+                    extend);
+              }
+              else{
+                showMessageDialog(
+                    context, entry.key, entry.value.name, entry.value.role,
+                    extend);
+              }
             },
             child:Card(
               color:seen[entry.key]?Colors.grey[300]:Colors.white,
