@@ -35,6 +35,8 @@ class _GameSetting extends State<GameSetting> {
       if (_numPlayers < 10) {
         _numPlayers++;
       }
+      isCheckedLibPlus=false;
+      isCheckedFascistPlus=false;
 
     });
   }
@@ -173,15 +175,27 @@ class _GameSetting extends State<GameSetting> {
       Widget libPlusWidget=Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Radio(
-            value:true,
-            groupValue: isCheckedLibPlus,
+          Checkbox(
+
+            value:isCheckedLibPlus,
+
             onChanged: (bool? value) {
               setState(() {
                 isCheckedLibPlus = value ?? false;
               });
             },
           ),
+          // Radio(
+          //   value:!isCheckedLibPlus,
+          //   groupValue: isCheckedLibPlus,
+          //   onChanged: (bool? value) {
+          //     print(value);
+          //     setState(() {
+          //       isCheckedLibPlus = value ?? false;
+          //     });
+          //   },
+          //
+          // ),
           Text('Liberal plus'),
         ],
       );
@@ -191,12 +205,13 @@ class _GameSetting extends State<GameSetting> {
       Widget fascistPlusWidget=Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Radio(
-            value:true,
-            groupValue: isCheckedFascistPlus,
+          Checkbox(
+
+            value:isCheckedFascistPlus,
+
             onChanged: (bool? value) {
               setState(() {
-                isCheckedFascistPlus = value ?? false;
+                isCheckedFascistPlus =  !isCheckedFascistPlus;
 
               });
             },

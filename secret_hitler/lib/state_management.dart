@@ -138,6 +138,7 @@ class GameState extends ChangeNotifier {
   }
 
   void specialRound(){
+    print('specialRound()');
     changeSpecial(true);
     changeState('base');
     nextRound();
@@ -266,7 +267,7 @@ class GameState extends ChangeNotifier {
   void updateChancellorList(){
     _chancellorList=[];
     for (int i = 0; i < _players.length; i++) {
-      if (i==_turn || _players[i].killed || !_chaos &&(_players[i].name==_lastChancellor || (_numberPlayers>5 && _players[i].name==_lastPresident))){
+      if (i==_turn || _players[i].killed || !_chaos &&(_players[i].name==_lastChancellor || (_numberPlayers>5 && (!special && _players[i].name ==_lastPresident)))){
         continue;
       }
       _chancellorList.add(_players[i].name);
@@ -550,13 +551,14 @@ class GameState extends ChangeNotifier {
       }
       killedEffect++;
     }while(_players[_turn].killed==true);
-    _special=false;
+
     if(_dec.length<=2){
       _dec=_dec+_disDec;
       _dec=_dec..shuffle();
       _disDec=[];
     }
     updateChancellorList();
+    _special=false;
     _chaos=false;
     if(_fashBoard.length>2){
       _hitlerState=true;
@@ -603,6 +605,7 @@ class GameState extends ChangeNotifier {
     selected_chancellor:${_selectedChancellor}
     chancellor_list:${_chancellorList}
     will_Search:${_willSearch}
+    special:${_special}
     candidate_list:${candidateList()}
     ''';
   }
