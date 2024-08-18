@@ -39,6 +39,9 @@ if (flutterVersionCode =='7') {
 if (flutterVersionCode =='8') {
     flutterVersionCode = '9'
 }
+if (flutterVersionCode =='9') {
+    flutterVersionCode = '10'
+}
 
 
 
