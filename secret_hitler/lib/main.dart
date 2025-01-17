@@ -6,8 +6,16 @@ import 'package:provider/provider.dart';
 import 'package:secret_hitler/state_management.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:secret_hitler/gameUI.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'dart:async';
+import 'dart:io';
 
-void main() {
+
+
+
+void main()async {
+  WidgetsFlutterBinding.ensureInitialized();
+  unawaited(MobileAds.instance.initialize());
   // runApp(const MyApp());
   runApp(
       MultiProvider(
@@ -47,14 +55,27 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.orange,
       ),
       // home: const MyHomePage(title: 'Secret Hitler'),
-        home: const Home(),
+        home:  Home(adSize: AdSize.banner,),
     );
   }
 }
 
 
 class Home extends StatefulWidget {
-  const Home({Key? key}) : super(key: key);
+  final AdSize adSize;
+
+  /// The AdMob ad unit to show.
+  ///
+  /// TODO: replace this test ad unit with your own ad unit
+  final String adUnitId = Platform.isAndroid
+  // Use this ad unit on Android...
+      ? 'ca-app-pub-3984438415397681/3111633121'
+  // ... or this one on iOS.
+      : 'ca-app-pub-3984438415397681/3111633121';
+  Home({
+    super.key,
+    this.adSize = AdSize.banner,
+  });
 
   @override
   State<Home> createState() => _HomeState();
@@ -64,15 +85,52 @@ class _HomeState extends State<Home> {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   late SharedPreferences loadedPrefs;
   late Future<bool> _hasGame;
+  BannerAd? _bannerAd;
+
+  /// Loads a banner ad.
+  void _loadAd() {
+    final bannerAd = BannerAd(
+      size: widget.adSize,
+      adUnitId: widget.adUnitId,
+      request: const AdRequest(),
+      listener: BannerAdListener(
+        // Called when an ad is successfully received.
+        onAdLoaded: (ad) {
+          if (!mounted) {
+            ad.dispose();
+            return;
+          }
+          setState(() {
+            _bannerAd = ad as BannerAd;
+          });
+        },
+        // Called when an ad request failed.
+        onAdFailedToLoad: (ad, error) {
+          debugPrint('BannerAd failed to load: $error');
+          ad.dispose();
+        },
+      ),
+    );
+
+    // Start loading.
+    bannerAd.load();
+  }
+
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    _loadAd();
     _hasGame = _prefs.then((SharedPreferences prefs) {
       loadedPrefs=prefs;
       return prefs.getBool('hasGame') ?? false;
     });
+  }
+  @override
+  void dispose() {
+    _bannerAd?.dispose();
+    super.dispose();
   }
 
 
@@ -202,7 +260,16 @@ class _HomeState extends State<Home> {
                   // width: 125.0,
                 ),
 
-            )
+            ),
+            SizedBox(
+              width: widget.adSize.width.toDouble(),
+              height: widget.adSize.height.toDouble(),
+              child: _bannerAd == null
+              // Nothing to render yet.
+                  ? const SizedBox()
+              // The actual ad.
+                  : AdWidget(ad: _bannerAd!),
+            ),
 
           ],
         ),

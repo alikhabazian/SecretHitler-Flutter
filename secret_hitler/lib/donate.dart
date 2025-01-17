@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:url_launcher/url_launcher.dart';
+import 'dart:io' show Platform;
+
 class Donatepage extends StatefulWidget {
   const Donatepage({Key? key}) : super(key: key);
 
@@ -12,6 +14,7 @@ class Donatepage extends StatefulWidget {
 class _DonatepageState extends State<Donatepage> {
   double progressValue = 0.0; // Initial progress value
   String title = "";
+
 
   @override
   void initState() {
@@ -41,6 +44,7 @@ class _DonatepageState extends State<Donatepage> {
   @override
   Widget build(BuildContext context) {
     print(title);
+    bool is_android=Theme.of(context).platform==TargetPlatform.android;
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
     final ButtonStyle style = ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 20));
@@ -99,6 +103,29 @@ class _DonatepageState extends State<Donatepage> {
                 child: const Text('Portfolio link'),
               ),
             ),
+            if(is_android)
+              SizedBox(
+              width: width*0.9,
+              height: 50,
+              child:ElevatedButton(
+                style: style,
+                onPressed: ()async{
+
+
+
+                  final Uri url = Uri.parse('https://secretadolf.ir');
+                  await launchUrl(url);
+
+
+                  // _launchURL('https://youtu.be/mbGXIDYdtas?si=l8QQgu_Bm3-i99jI');
+
+                },
+                child: const Text('Site address'),
+              ),
+            )
+
+
+
             // Card(
             //   child: Padding(
             //     padding: const EdgeInsets.all(8.0),
@@ -135,7 +162,9 @@ class _DonatepageState extends State<Donatepage> {
             //   ),
             //
             // ),
-          ],
+          ]
+
+          ,
         ),
       ),
     );
